@@ -34,6 +34,7 @@ namespace SourceOfFund.API
             );
 
             services.AddScoped(typeof(IBaseRepository<,>), typeof(BaseRepository<,>));
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IAccountBalanceService, AccountBalanceService>();
 
             services.AddControllers();

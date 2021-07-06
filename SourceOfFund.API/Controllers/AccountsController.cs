@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using SourceOfFund.Services.Models;
+using SourceOfFund.API.Models;
+using SourceOfFund.Infrastructure.Helpers;
 using SourceOfFund.Services.Services;
 using System;
 using System.Collections.Generic;
@@ -12,7 +13,7 @@ namespace SourceOfFund.API.Controllers
     [Route("api/[controller]")]
     [ApiController]
 
-    public class AccountsController : ControllerBase
+    public class AccountsController : BaseController
     {
         private readonly IAccountBalanceService _accountBalanceService;
         public AccountsController(IAccountBalanceService accountBalanceService)
@@ -57,5 +58,26 @@ namespace SourceOfFund.API.Controllers
         //    };
         //} 
         #endregion
+        [HttpPost]
+        [Route("{accountId}/service/{denominationId}/request/{requestId}")]
+        public IActionResult Post([FromBody] HoldBalanceModel model, int requestId, int accountId, int balanceTypeId)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+
+                _accountBalanceService.HoldAmount(model.Amount, accountId, balanceTypeId, requestId);
+                return Ok("200", "");
+            }
+            catch (SourceOfFundException ex)
+            {
+                return BadRequest(ex.Message, ex.ErrorCode);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("", "0");
+            }
+        }
     }
 }
