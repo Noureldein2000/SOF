@@ -9,4 +9,8 @@
     <ProjectReference Include="..\SourceOfFund.Infrastructure\SourceOfFund.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="DTOs\" />
+  </ItemGroup>
+
 </Project>
