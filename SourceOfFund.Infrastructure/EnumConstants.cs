@@ -6,6 +6,7 @@ namespace SourceOfFund.Infrastructure
 {
     class EnumConstants
     {
+
     }
 
     public enum BalanceTypes : short
