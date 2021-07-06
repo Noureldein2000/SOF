@@ -13,4 +13,10 @@ namespace SourceOfFund.Infrastructure
         MomkmBalance = 1,
         CashBalance = 2
     }
+
+    public enum ActiveStatus : short
+    {
+        True = 1,
+        False = 0
+    }
 }

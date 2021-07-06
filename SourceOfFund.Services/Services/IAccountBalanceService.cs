@@ -6,5 +6,6 @@ namespace SourceOfFund.Services.Services
 {
     public interface IAccountBalanceService
     {
+        void HoldAmount(decimal amount, int accountId, int balanceTypeId, int requestId);
     }
 }
