@@ -13,7 +13,7 @@ namespace SourceOfFund.API.Controllers
     public class BaseController : ControllerBase
     {
         [NonAction]
-        public IActionResult BadRequest(string errorCode, string errorMessage)
+        public IActionResult BadRequest(string errorMessage, string errorCode)
         {
             var response = new AuthorizationErrorMessages
             {

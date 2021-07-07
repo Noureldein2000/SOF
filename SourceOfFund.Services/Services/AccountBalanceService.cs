@@ -47,7 +47,7 @@ namespace SourceOfFund.Services.Services
                 Balance = model.Amount,
                 RequestID = model.RequestId,
                 SourceID = model.BalanceTypeId,
-                Status=ActiveStatus.True
+                Status = ActiveStatus.True
             });
             _unitOfWork.SaveChanges();
         }
@@ -55,7 +55,7 @@ namespace SourceOfFund.Services.Services
         {
             var holdBalance = _holdBalances.Getwhere(c => c.RequestID == model.RequestId
             && c.AccountID == model.AccountId && c.Status == ActiveStatus.True).FirstOrDefault();
-            if(holdBalance == null)
+            if (holdBalance == null)
                 throw new SourceOfFundException("", "5");
 
             var availableBalance = _accountServiceAvailableBalances.Getwhere(av =>
@@ -80,15 +80,11 @@ namespace SourceOfFund.Services.Services
                     AvailableBalance = a.AccountServiceAvailableBalances.Where(a => a.AccountID == accountId)
                         .Select(b => b.Balance).FirstOrDefault(),
                 }).FirstOrDefault();
-          //  var accountBalance = _accountServiceBalances.Getwhere(asb => asb.AccountID == accountId
-          //       && asb.BalanceTypeID == balanceTypeId).FirstOrDefault();
 
-          //var accountAvaliableBalance= _accountServiceAvailableBalances.Getwhere(asb => asb.AccountID == accountId && asb.BalanceTypeID == balanceTypeId).FirstOrDefault();
-            
             return new AccountBalanceDTO
             {
-                TotalBalance= balances.Balance,
-                TotalAvailableBalance= balances.AvailableBalance
+                TotalBalance = balances.Balance,
+                TotalAvailableBalance = balances.AvailableBalance
             };
         }
 

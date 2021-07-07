@@ -40,11 +40,11 @@ namespace SourceOfFund.API.Controllers
             }
             catch (SourceOfFundException ex)
             {
-                return BadRequest(ex.ErrorCode, ex.Message);
+                return BadRequest(ex.Message, ex.ErrorCode);
             }
             catch (Exception ex)
             {
-                return BadRequest("0", "");
+                return BadRequest("", "0");
             }
         }
 
@@ -69,7 +69,7 @@ namespace SourceOfFund.API.Controllers
             }
             catch (SourceOfFundException ex)
             {
-                return BadRequest(ex.ErrorCode, ex.Message);
+                return BadRequest(ex.Message, ex.ErrorCode);
             }
             catch (Exception ex)
             {
@@ -94,11 +94,11 @@ namespace SourceOfFund.API.Controllers
             }
             catch (SourceOfFundException ex)
             {
-                return BadRequest(ex.ErrorCode, ex.Message);
+                return BadRequest(ex.Message, ex.ErrorCode);
             }
             catch (Exception ex)
             {
-                return BadRequest("0", "");
+                return BadRequest("", "0");
             }
         }
 
@@ -122,11 +122,11 @@ namespace SourceOfFund.API.Controllers
             }
             catch (SourceOfFundException ex)
             {
-                return BadRequest(ex.ErrorCode, ex.Message);
+                return BadRequest(ex.Message, ex.ErrorCode);
             }
             catch (Exception ex)
             {
-                return BadRequest("0", "");
+                return BadRequest("", "0");
             }
         }
 
