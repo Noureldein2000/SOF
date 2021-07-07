@@ -47,13 +47,14 @@ namespace SourceOfFund.Services.Services
                 Balance = model.Amount,
                 RequestID = model.RequestId,
                 SourceID = model.BalanceTypeId,
+                Status=ActiveStatus.True
             });
             _unitOfWork.SaveChanges();
         }
         public void RefundAmount(HoldBalanceDTO model)
         {
             var holdBalance = _holdBalances.Getwhere(c => c.RequestID == model.RequestId
-            && c.AccountID == model.AccountId && c.Status == ActiveStatus.False).FirstOrDefault();
+            && c.AccountID == model.AccountId && c.Status == ActiveStatus.True).FirstOrDefault();
             if(holdBalance == null)
                 throw new SourceOfFundException("", "5");
 
@@ -63,7 +64,7 @@ namespace SourceOfFund.Services.Services
                 throw new SourceOfFundException("", "5");
 
             availableBalance.Balance += holdBalance.Balance;
-            holdBalance.Status = ActiveStatus.True;
+            holdBalance.Status = ActiveStatus.False;
 
             _unitOfWork.SaveChanges();
         }
@@ -89,6 +90,26 @@ namespace SourceOfFund.Services.Services
                 TotalBalance= balances.Balance,
                 TotalAvailableBalance= balances.AvailableBalance
             };
+        }
+
+        public void ConfirmAmount(HoldBalanceDTO model)
+        {
+            var holdBalance = _holdBalances.Getwhere(c => c.RequestID == model.RequestId
+           && c.AccountID == model.AccountId && c.Status == ActiveStatus.True).FirstOrDefault();
+
+            if (holdBalance == null)
+                throw new SourceOfFundException("", "5");
+
+            var balance = _accountServiceBalances.Getwhere(asb =>
+            asb.AccountID == model.AccountId && asb.BalanceTypeID == holdBalance.SourceID).FirstOrDefault();
+
+            if (balance == null)
+                throw new SourceOfFundException("", "5");
+
+            balance.Balance -= holdBalance.Balance;
+            holdBalance.Status = ActiveStatus.False;
+
+            _unitOfWork.SaveChanges();
         }
     }
 }

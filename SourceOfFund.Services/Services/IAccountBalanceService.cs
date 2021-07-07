@@ -9,6 +9,7 @@ namespace SourceOfFund.Services.Services
     {
         void HoldAmount(HoldBalanceDTO model);
         void RefundAmount(HoldBalanceDTO model);
+        void ConfirmAmount(HoldBalanceDTO model);
         AccountBalanceDTO GetBalance(int accountId,int balanceTypeId);
     }
 }

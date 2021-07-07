@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using SourceOfFund.API.Models;
 using SourceOfFund.Infrastructure.Helpers;
+using SourceOfFund.Services.DTOs;
 using SourceOfFund.Services.Models;
 using SourceOfFund.Services.Services;
 using System;
@@ -37,13 +38,17 @@ namespace SourceOfFund.API.Controllers
                 });
 
             }
+            catch (SourceOfFundException ex)
+            {
+                return BadRequest(ex.ErrorCode, ex.Message);
+            }
             catch (Exception ex)
             {
-                return BadRequest(ex);
+                return BadRequest("0", "");
             }
         }
 
-       
+
         [HttpPost]
         [Route("{accountId}/services/{balanceTypeId}/requests/{requestId}")]
         public IActionResult Post([FromBody] HoldBalanceModel model, int accountId, int balanceTypeId, int requestId)
@@ -53,7 +58,7 @@ namespace SourceOfFund.API.Controllers
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
 
-                _accountBalanceService.HoldAmount(new Services.DTOs.HoldBalanceDTO
+                _accountBalanceService.HoldAmount(new HoldBalanceDTO
                 {
                     AccountId = accountId,
                     Amount = model.Amount,
@@ -80,10 +85,38 @@ namespace SourceOfFund.API.Controllers
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
 
-                _accountBalanceService.RefundAmount(new Services.DTOs.HoldBalanceDTO
+                _accountBalanceService.RefundAmount(new HoldBalanceDTO
                 {
                     AccountId = accountId,
                     RequestId = requestId,
+                });
+                return Ok("200", "");
+            }
+            catch (SourceOfFundException ex)
+            {
+                return BadRequest(ex.ErrorCode, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("0", "");
+            }
+        }
+
+        [HttpPut]
+        [Route("{accountId}/services/{balanceTypeId}/requests/{requestId}")]
+        public IActionResult Confirm([FromBody] HoldBalanceModel model, int accountId, int balanceTypeId, int requestId)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+
+                _accountBalanceService.ConfirmAmount(new HoldBalanceDTO
+                {
+                    AccountId = accountId,
+                    RequestId = requestId,
+                    Amount = model.Amount,
+                    BalanceTypeId = balanceTypeId
                 });
                 return Ok("200", "");
             }
