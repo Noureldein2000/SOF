@@ -87,7 +87,6 @@ namespace SourceOfFund.Services.Services
                 TotalAvailableBalance = balances.AvailableBalance
             };
         }
-
         public void ConfirmAmount(HoldBalanceDTO model)
         {
             var holdBalance = _holdBalances.Getwhere(c => c.RequestID == model.RequestId
