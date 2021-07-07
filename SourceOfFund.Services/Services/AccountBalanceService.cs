@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace SourceOfFund.Services.Services
 {
@@ -48,11 +49,16 @@ namespace SourceOfFund.Services.Services
         }
         public AccountBalanceDTO GetBalance(int accountId, int balanceTypeId, string languge)
         {
-          var accountBalanceDTO =  _accountServiceBalances.Getwhere(asb => asb.AccountID == accountId && asb.BalanceTypeID == balanceTypeId).Select(a=> new AccountBalanceDTO { TotalBalance = a.Balance }).FirstOrDefault();
+            
+          var accountBalance =  _accountServiceBalances.Getwhere(asb => asb.AccountID == accountId && asb.BalanceTypeID == balanceTypeId).FirstOrDefault();
 
-           accountBalanceDTO = _accountServiceAvailableBalances.Getwhere(asb => asb.AccountID == accountId && asb.BalanceTypeID == balanceTypeId).Select(a=> new AccountBalanceDTO { TotalAvailableBalance = a.Balance }).FirstOrDefault();
-
-            return accountBalanceDTO;
+          var accountAvaliableBalance= _accountServiceAvailableBalances.Getwhere(asb => asb.AccountID == accountId && asb.BalanceTypeID == balanceTypeId).FirstOrDefault();
+            
+            return new AccountBalanceDTO
+            {
+                TotalBalance=accountBalance.Balance,
+                TotalAvailableBalance=accountAvaliableBalance.Balance
+            };
         }
     }
 }
