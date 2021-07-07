@@ -7,7 +7,8 @@ namespace SourceOfFund.Services.Services
 {
     public interface IAccountBalanceService
     {
-        void HoldAmount(decimal amount, int accountId, int balanceTypeId, int requestId);
-        AccountBalanceDTO GetBalance(int accountId,int balanceTypeId,string languge);
+        void HoldAmount(HoldBalanceDTO model);
+        void RefundAmount(HoldBalanceDTO model);
+        AccountBalanceDTO GetBalance(int accountId,int balanceTypeId);
     }
 }

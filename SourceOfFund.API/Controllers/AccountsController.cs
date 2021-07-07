@@ -23,13 +23,18 @@ namespace SourceOfFund.API.Controllers
         }
 
         [HttpGet]
-        [Route("{AccountID}/GetBalance/{balanceTypeID}")]
-        public IActionResult GetBalance(int accountID, int balanceTypeID, string language = "ar")
+        [Route("{accountId}/services/{balanceTypeId}/balances")]
+        public IActionResult GetBalance(int accountId, int balanceTypeId)
         {
             try
             {
-                var balancesModel = _accountBalanceService.GetBalance(accountID, balanceTypeID, language);
-                return Ok(new AccountBalanceResponseModel { Code = 200, TotalBalance = balancesModel.TotalBalance, TotalAvailableBalance = balancesModel.TotalAvailableBalance });
+                var balancesModel = _accountBalanceService.GetBalance(accountId, balanceTypeId);
+                return Ok(new AccountBalanceResponseModel
+                {
+                    Code = 200,
+                    TotalBalance = balancesModel.TotalBalance,
+                    TotalAvailableBalance = balancesModel.TotalAvailableBalance
+                });
 
             }
             catch (Exception ex)
@@ -40,24 +45,55 @@ namespace SourceOfFund.API.Controllers
 
        
         [HttpPost]
-        [Route("{accountId}/service/{denominationId}/request/{requestId}")]
-        public IActionResult Post([FromBody] HoldBalanceModel model, int requestId, int accountId, int balanceTypeId)
+        [Route("{accountId}/services/{balanceTypeId}/requests/{requestId}")]
+        public IActionResult Post([FromBody] HoldBalanceModel model, int accountId, int balanceTypeId, int requestId)
         {
             try
             {
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
 
-                _accountBalanceService.HoldAmount(model.Amount, accountId, balanceTypeId, requestId);
+                _accountBalanceService.HoldAmount(new Services.DTOs.HoldBalanceDTO
+                {
+                    AccountId = accountId,
+                    Amount = model.Amount,
+                    RequestId = requestId,
+                    BalanceTypeId = balanceTypeId
+                });
                 return Ok("200", "");
             }
             catch (SourceOfFundException ex)
             {
-                return BadRequest(ex.Message, ex.ErrorCode);
+                return BadRequest(ex.ErrorCode, ex.Message);
             }
             catch (Exception ex)
             {
-                return BadRequest("", "0");
+                return BadRequest("0", "");
+            }
+        }
+        [HttpDelete]
+        [Route("{accountId}/requests/{requestId}")]
+        public IActionResult Refund([FromRoute] int accountId, int requestId)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+
+                _accountBalanceService.RefundAmount(new Services.DTOs.HoldBalanceDTO
+                {
+                    AccountId = accountId,
+                    RequestId = requestId,
+                });
+                return Ok("200", "");
+            }
+            catch (SourceOfFundException ex)
+            {
+                return BadRequest(ex.ErrorCode, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("0", "");
             }
         }
 

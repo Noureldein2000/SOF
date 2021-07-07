@@ -9,7 +9,5 @@ namespace SourceOfFund.Services.DTOs
 
         public decimal TotalBalance { get; set; }
         public decimal TotalAvailableBalance { get; set; }
-        public int Code { get; set; }
-        public string Message { get; set; }
     }
 }
