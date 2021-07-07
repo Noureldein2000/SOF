@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using SourceOfFund.API.Models;
 using SourceOfFund.Infrastructure.Helpers;
+using SourceOfFund.Services.Models;
 using SourceOfFund.Services.Services;
 using System;
 using System.Collections.Generic;
@@ -22,7 +23,7 @@ namespace SourceOfFund.API.Controllers
         }
 
         [HttpGet]
-        [Route("GetBalance/{AccountID}/{balanceTypeID}")]
+        [Route("{AccountID}/GetBalance/{balanceTypeID}")]
         public IActionResult GetBalance(int accountID, int balanceTypeID, string language = "ar")
         {
             try
@@ -37,27 +38,7 @@ namespace SourceOfFund.API.Controllers
             }
         }
 
-        //Helper Method
-        #region Helper Method
-
-        //private AccountRequestModel Map(AccountBalanceDTO model)
-        //{
-        //    return new AccountRequestModel
-        //    {
-        //        Id = model.Id,
-        //        OwnerName = model.OwnerName,
-        //        AccountName = model.AccountName,
-        //        Mobile = model.Mobile,
-        //        Address = model.Address,
-        //        Email = model.Email,
-        //        NationalID = model.NationalID,
-        //        CommercialRegistrationNo = model.CommercialRegistrationNo,
-        //        TaxNo = model.TaxNo,
-        //        ActivityID = model.ActivityID,
-        //        ActivityName = model.ActivityName
-        //    };
-        //} 
-        #endregion
+       
         [HttpPost]
         [Route("{accountId}/service/{denominationId}/request/{requestId}")]
         public IActionResult Post([FromBody] HoldBalanceModel model, int requestId, int accountId, int balanceTypeId)
@@ -79,5 +60,6 @@ namespace SourceOfFund.API.Controllers
                 return BadRequest("", "0");
             }
         }
+
     }
 }
