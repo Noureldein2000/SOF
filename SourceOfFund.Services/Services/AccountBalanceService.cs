@@ -69,13 +69,15 @@ namespace SourceOfFund.Services.Services
         }
         public AccountBalanceDTO GetBalance(int accountId, int balanceTypeId)
         {
-            var blances = _balanceType.Getwhere(b => b.ID == balanceTypeId
+            var balances = _balanceType.Getwhere(b => b.ID == balanceTypeId
             && b.AccountServiceBalances.Any(a => a.AccountID == accountId)
             && b.AccountServiceAvailableBalances.Any(a => a.AccountID == accountId))
                 .Select(a => new
                 {
-                    Balance = a.AccountServiceBalances.Select(b => b.Balance).FirstOrDefault(),
-                    AvailableBalance = a.AccountServiceAvailableBalances.Select(b => b.Balance).FirstOrDefault(),
+                    Balance = a.AccountServiceBalances.Where(a => a.AccountID == accountId)
+                        .Select(b => b.Balance).FirstOrDefault(),
+                    AvailableBalance = a.AccountServiceAvailableBalances.Where(a => a.AccountID == accountId)
+                        .Select(b => b.Balance).FirstOrDefault(),
                 }).FirstOrDefault();
           //  var accountBalance = _accountServiceBalances.Getwhere(asb => asb.AccountID == accountId
           //       && asb.BalanceTypeID == balanceTypeId).FirstOrDefault();
@@ -84,8 +86,8 @@ namespace SourceOfFund.Services.Services
             
             return new AccountBalanceDTO
             {
-                TotalBalance= blances.Balance,
-                TotalAvailableBalance= blances.AvailableBalance
+                TotalBalance= balances.Balance,
+                TotalAvailableBalance= balances.AvailableBalance
             };
         }
     }
