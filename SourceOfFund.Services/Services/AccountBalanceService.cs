@@ -8,6 +8,8 @@ using System.Text;
 using System.Linq;
 using SourceOfFund.Infrastructure;
 using System.Threading.Tasks;
+using SourceOfFund.Data;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace SourceOfFund.Services.Services
 {
@@ -18,6 +20,7 @@ namespace SourceOfFund.Services.Services
         private readonly IBaseRepository<HoldBalance, int> _holdBalances;
         private readonly IBaseRepository<BalanceType, int> _balanceType;
         private readonly IBaseRepository<BalanceHistory, int> _balanceHistory;
+        private readonly IServiceProvider _serviceProvider;
 
         private readonly IUnitOfWork _unitOfWork;
         public AccountBalanceService(
@@ -26,6 +29,7 @@ namespace SourceOfFund.Services.Services
             IBaseRepository<HoldBalance, int> holdBalances,
             IBaseRepository<BalanceType, int> balanceType,
             IBaseRepository<BalanceHistory, int> balanceHistory,
+            IServiceProvider serviceProvider,
             IUnitOfWork unitOfWork
             )
         {
@@ -35,6 +39,7 @@ namespace SourceOfFund.Services.Services
             _holdBalances = holdBalances;
             _balanceType = balanceType;
             _balanceHistory = balanceHistory;
+            _serviceProvider = serviceProvider;
         }
 
         public void HoldAmount(HoldBalanceDTO model)
@@ -114,13 +119,16 @@ namespace SourceOfFund.Services.Services
             _unitOfWork.SaveChanges();
 
             Task.Run(() => CreateBalanceHistory(
-                model.TransactionId, model.AccountId, model.BalanceTypeId, 
+                model.TransactionId, model.AccountId, holdBalance.BalanceTypeID.Value, 
                 holdBalance.AvailableBalanceBefore, totalBalances));
             
         }
         public void CreateBalanceHistory(int transactionId, int accountId, int balanceTypeId, decimal beforeBalance, decimal totalBalance)
         {
-            _balanceHistory.Add(new BalanceHistory
+            using var scope = _serviceProvider.CreateScope();
+            var services = scope.ServiceProvider;
+            var context = services.GetRequiredService<ApplicationDbContext>();
+            context.BalanceHistories.Add(new BalanceHistory
             {
                 AccountID = accountId,
                 BalanceBefore = beforeBalance,
@@ -128,7 +136,7 @@ namespace SourceOfFund.Services.Services
                 TransactionID = transactionId,
                 TotalBalance = totalBalance
             });
-            _unitOfWork.SaveChanges();
+            context.SaveChanges();
         }
     }
 }

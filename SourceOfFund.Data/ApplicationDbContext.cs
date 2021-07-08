@@ -18,6 +18,7 @@ namespace SourceOfFund.Data
         public virtual DbSet<AccountServiceAvailableBalance> AccountServiceAvailableBalances { get; set; }
         public virtual DbSet<AccountServiceBalance> AccountServiceBalances { get; set; }
         public virtual DbSet<HoldBalance> HoldBalances { get; set; }
+        public virtual DbSet<BalanceHistory> BalanceHistories { get; set; }
         public override int SaveChanges()
         {
             var entries = ChangeTracker
@@ -28,12 +29,18 @@ namespace SourceOfFund.Data
 
             foreach (var entityEntry in entries)
             {
-                ((BaseEntity<int>)entityEntry.Entity).UpdateDate = DateTime.Now;
-
-                if (entityEntry.State == EntityState.Added)
+                switch (entityEntry.State)
                 {
-                    ((BaseEntity<int>)entityEntry.Entity).CreationDate = DateTime.Now;
+                    case EntityState.Modified:
+                        ((BaseEntity<int>)entityEntry.Entity).UpdateDate = DateTime.Now;
+                        break;
+                    case EntityState.Added:
+                        ((BaseEntity<int>)entityEntry.Entity).CreationDate = DateTime.Now;
+                        break;
+                    default:
+                        break;
                 }
+                
             }
 
             return base.SaveChanges();
