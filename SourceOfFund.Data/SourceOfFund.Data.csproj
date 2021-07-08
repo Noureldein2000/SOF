@@ -1,8 +1,17 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Migrations\20210708090342_ModifyAvailableBalanceBefore.cs" />
+    <Compile Remove="Migrations\20210708090342_ModifyAvailableBalanceBefore.Designer.cs" />
+    <Compile Remove="Migrations\20210708090514_ModifyAvailableBalanceBefore.cs" />
+    <Compile Remove="Migrations\20210708090514_ModifyAvailableBalanceBefore.Designer.cs" />
+    <Compile Remove="Migrations\20210708090946_ModifyAvailableBalanceBefore.cs" />
+    <Compile Remove="Migrations\20210708090946_ModifyAvailableBalanceBefore.Designer.cs" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.16" />

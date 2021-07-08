@@ -24,7 +24,7 @@ namespace SourceOfFund.API.Controllers
         }
 
         [HttpGet]
-        [Route("{accountId}/services/{balanceTypeId}/balances")]
+        [Route("{accountId}/balances/{balanceTypeId}")]
         public IActionResult GetBalance(int accountId, int balanceTypeId)
         {
             try
@@ -50,7 +50,7 @@ namespace SourceOfFund.API.Controllers
 
 
         [HttpPost]
-        [Route("{accountId}/services/{balanceTypeId}/requests/{requestId}")]
+        [Route("{accountId}/balances/{balanceTypeId}/requests/{requestId}")]
         public IActionResult Post([FromBody] HoldBalanceModel model, int accountId, int balanceTypeId, int requestId)
         {
             try
@@ -103,8 +103,8 @@ namespace SourceOfFund.API.Controllers
         }
 
         [HttpPut]
-        [Route("{accountId}/requests/{requestId}/transaction/{transactionId}")]
-        public IActionResult Confirm([FromBody] HoldBalanceModel model, int accountId, int requestId, int transactionId)
+        [Route("{accountId}/requests/{requestId}/transactions/{transactionId}")]
+        public IActionResult Confirm(int accountId, int requestId, int transactionId)
         {
             try
             {
@@ -115,7 +115,6 @@ namespace SourceOfFund.API.Controllers
                 {
                     AccountId = accountId,
                     RequestId = requestId,
-                    Amount = model.Amount,
                     TransactionId = transactionId
                 });
                 return Ok("200", "");

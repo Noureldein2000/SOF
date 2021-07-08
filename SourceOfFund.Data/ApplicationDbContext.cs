@@ -21,10 +21,10 @@ namespace SourceOfFund.Data
         public override int SaveChanges()
         {
             var entries = ChangeTracker
-        .Entries()
-        .Where(e => e.Entity is BaseEntity<int> && (
-                e.State == EntityState.Added
-                || e.State == EntityState.Modified));
+            .Entries()
+            .Where(e => e.Entity is BaseEntity<int> && (
+                    e.State == EntityState.Added
+                    || e.State == EntityState.Modified));
 
             foreach (var entityEntry in entries)
             {

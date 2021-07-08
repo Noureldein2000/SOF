@@ -13,6 +13,7 @@ namespace SourceOfFund.Data.Configurations
         {
             builder.HasKey(s => s.ID);
             builder.Property(s => s.BalanceBefore).HasColumnType("decimal(18,3)");
+            builder.Property(s => s.TotalBalance).HasColumnType("decimal(18,3)");
             builder.HasOne(s => s.BalanceType).WithMany(s => s.BalanceHistorys)
                 .HasForeignKey(s => s.BalanceTypeID)
                 .OnDelete(DeleteBehavior.NoAction);

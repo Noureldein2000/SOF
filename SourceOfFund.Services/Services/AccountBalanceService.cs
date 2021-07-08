@@ -51,8 +51,10 @@ namespace SourceOfFund.Services.Services
                 AccountID = model.AccountId,
                 Balance = model.Amount,
                 RequestID = model.RequestId,
-                SourceID = model.BalanceTypeId,
-                Status = ActiveStatus.True
+                SourceID = 1,
+                Status = ActiveStatus.True,
+                AvailableBalanceBefore = availableBalance.Balance,
+                BalanceTypeID = model.BalanceTypeId
             });
             _unitOfWork.SaveChanges();
         }
@@ -64,7 +66,7 @@ namespace SourceOfFund.Services.Services
                 throw new SourceOfFundException("", "5");
 
             var availableBalance = _accountServiceAvailableBalances.Getwhere(av =>
-            av.AccountID == model.AccountId && av.BalanceTypeID == holdBalance.SourceID).FirstOrDefault();
+            av.AccountID == model.AccountId && av.BalanceTypeID == holdBalance.BalanceTypeID).FirstOrDefault();
             if (availableBalance == null)
                 throw new SourceOfFundException("", "5");
 
@@ -100,30 +102,31 @@ namespace SourceOfFund.Services.Services
             if (holdBalance == null)
                 throw new SourceOfFundException("", "5");
 
-            var balance = _accountServiceBalances.Getwhere(asb =>
-            asb.AccountID == model.AccountId && asb.BalanceTypeID == holdBalance.SourceID).FirstOrDefault();
+            var balances = _accountServiceBalances.Getwhere(asb => asb.AccountID == model.AccountId).ToList();
 
-            if (balance == null)
+            if (balances.Count <= 0)
                 throw new SourceOfFundException("", "5");
-            var beforeBalance = balance.Balance;
+            var totalBalances = balances.Sum(b => b.Balance);
+            var targetBalance = balances.Where(asb => asb.BalanceTypeID == holdBalance.BalanceTypeID).FirstOrDefault();
 
-            balance.Balance -= holdBalance.Balance;
+            targetBalance.Balance -= holdBalance.Balance;
             holdBalance.Status = ActiveStatus.False;
             _unitOfWork.SaveChanges();
 
             Task.Run(() => CreateBalanceHistory(
-                model.TransactionId, model.AccountId,
-                model.BalanceTypeId, beforeBalance));
+                model.TransactionId, model.AccountId, model.BalanceTypeId, 
+                holdBalance.AvailableBalanceBefore, totalBalances));
             
         }
-        public void CreateBalanceHistory(int transactionId, int accountId, int balanceTypeId, decimal amount)
+        public void CreateBalanceHistory(int transactionId, int accountId, int balanceTypeId, decimal beforeBalance, decimal totalBalance)
         {
             _balanceHistory.Add(new BalanceHistory
             {
                 AccountID = accountId,
-                BalanceBefore = amount,
+                BalanceBefore = beforeBalance,
                 BalanceTypeID = balanceTypeId,
-                TransactionID = transactionId
+                TransactionID = transactionId,
+                TotalBalance = totalBalance
             });
             _unitOfWork.SaveChanges();
         }
