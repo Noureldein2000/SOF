@@ -44,7 +44,7 @@ namespace SourceOfFund.API.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest("", "0");
+                return BadRequest(ex.Message, "0");
             }
         }
 
