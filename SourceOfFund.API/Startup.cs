@@ -20,18 +20,26 @@ namespace SourceOfFund.API
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, IWebHostEnvironment env)
         {
-            Configuration = configuration;
+            //Configuration = configuration;
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(env.ContentRootPath)
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
+                .AddEnvironmentVariables();
+
+            Configuration = builder.Build();
         }
 
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
-        {
+        { 
+
             services.AddDbContext<ApplicationDbContext>(option =>
-                option.UseSqlServer(Configuration.GetConnectionString("Default"))
+                option.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"))
             );
 
             services.AddScoped(typeof(IBaseRepository<,>), typeof(BaseRepository<,>));
@@ -43,7 +51,7 @@ namespace SourceOfFund.API
                 .AddJsonOptions(options =>
                 {
                     options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
-                });
+                }).AddXmlSerializerFormatters();
 
             services.AddSwaggerGen(c =>
             {
@@ -84,7 +92,11 @@ namespace SourceOfFund.API
             }
 
             //app.UseHttpsRedirection();
-            
+            using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetService<ApplicationDbContext>();
+                context.Database.Migrate();
+            }
             app.UseStaticFiles();
             app.UseCors(options => options.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
             app.UseRouting();

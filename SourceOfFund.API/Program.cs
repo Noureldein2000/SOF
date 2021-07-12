@@ -18,24 +18,24 @@ namespace SourceOfFund.API
         {
             var host = CreateHostBuilder(args).Build();
 
-            using (var scope = host.Services.CreateScope())
-            {
-                var services = scope.ServiceProvider;
+            //using (var scope = host.Services.CreateScope())
+            //{
+            //    var services = scope.ServiceProvider;
 
-                try
-                {
-                    var environment = services.GetRequiredService<IWebHostEnvironment>();
-                    if(environment.IsDevelopment())
-                    {
-                        var context = services.GetRequiredService<ApplicationDbContext>();
-                        context.Database.Migrate();
-                    }
-                }
-                catch (Exception ex)
-                {
+            //    try
+            //    {
+            //        var environment = services.GetRequiredService<IWebHostEnvironment>();
+            //        if(environment.IsDevelopment())
+            //        {
+            //            var context = services.GetRequiredService<ApplicationDbContext>();
+            //            context.Database.Migrate();
+            //        }
+            //    }
+            //    catch (Exception ex)
+            //    {
 
-                }
-            }
+            //    }
+            //}
 
             host.Run();
         }

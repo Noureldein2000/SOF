@@ -98,6 +98,9 @@ namespace SourceOfFund.Services.Services
                         .Select(b => b.Balance).FirstOrDefault(),
                 }).FirstOrDefault();
 
+            if(balances == null)
+                throw new SourceOfFundException("", "0");
+
             return new AccountBalanceDTO
             {
                 TotalBalance = balances.Balance,
