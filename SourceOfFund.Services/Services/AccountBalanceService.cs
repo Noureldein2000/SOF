@@ -50,7 +50,7 @@ namespace SourceOfFund.Services.Services
                 throw new SourceOfFundException("", "5");
 
             var availableBalance = _accountServiceAvailableBalances.Getwhere(av =>
-            av.AccountID == model.AccountId && av.BalanceTypeID == model.BalanceTypeId).FirstOrDefault();
+            av.AccountID == model.AccountId && model.BalanceTypeId.HasValue ? av.BalanceTypeID == model.BalanceTypeId : av.BalanceTypeID == 1).FirstOrDefault();
 
             if (availableBalance == null || availableBalance.Balance < model.Amount)
                 throw new SourceOfFundException("", "5");

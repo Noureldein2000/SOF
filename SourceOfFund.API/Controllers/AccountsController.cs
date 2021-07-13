@@ -51,7 +51,7 @@ namespace SourceOfFund.API.Controllers
 
         [HttpPost]
         [Route("{accountId}/balances/{balanceTypeId}/requests/{requestId}")]
-        public IActionResult Post([FromBody] HoldBalanceModel model, int accountId, int balanceTypeId, int requestId)
+        public IActionResult Post([FromBody] HoldBalanceModel model, int accountId, int requestId, int? balanceTypeId = null)
         {
             try
             {
