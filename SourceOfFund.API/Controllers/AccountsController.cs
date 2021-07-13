@@ -130,12 +130,12 @@ namespace SourceOfFund.API.Controllers
         }
 
         [HttpPut]
-        [Route("{accountId}/balances/{balanceTypeId}")]
-        public IActionResult ReturnBalance(int fromAccountId, int ToAccountId, decimal Amount, int? balanceTypeId = 1)
+        [Route("{fromAccountId}/{ToAccountId}/balances/{Amount}")]
+        public IActionResult ReturnBalance(int fromAccountId, int ToAccountId, decimal Amount)
         {
             try
             {
-                _accountBalanceService.ReturnBalance(fromAccountId, ToAccountId, Amount,balanceTypeId);
+                _accountBalanceService.ReturnBalance(fromAccountId, ToAccountId, Amount);
                 return Ok("200", "");
             }
             catch (SourceOfFundException ex)

@@ -147,9 +147,9 @@ namespace SourceOfFund.Services.Services
             });
             context.SaveChanges();
         }
-        public void ReturnBalance(int fromAccountId, int toAccountId, decimal Amount, int? balanceTypeId)
+        public void ReturnBalance(int fromAccountId, int toAccountId, decimal Amount)
         {
-            var balancesFromAccount = _balanceType.Getwhere(b => b.ID == balanceTypeId
+            var balancesFromAccount = _balanceType.Getwhere(b => b.ID == 1
            && b.AccountServiceBalances.Any(a => a.AccountID == fromAccountId)
            && b.AccountServiceAvailableBalances.Any(a => a.AccountID == fromAccountId))
                .Select(a => new BalancesModel
@@ -163,7 +163,7 @@ namespace SourceOfFund.Services.Services
             balancesFromAccount.Balance -= Amount;
             balancesFromAccount.AvaliableBalance -= Amount;
 
-            var balancesToAccount = _balanceType.Getwhere(b => b.ID == balanceTypeId
+            var balancesToAccount = _balanceType.Getwhere(b => b.ID == 1
           && b.AccountServiceBalances.Any(a => a.AccountID == toAccountId)
           && b.AccountServiceAvailableBalances.Any(a => a.AccountID == toAccountId))
               .Select(a => new BalancesModel
@@ -180,5 +180,6 @@ namespace SourceOfFund.Services.Services
             _unitOfWork.SaveChanges();
 
         }
+
     }
 }
