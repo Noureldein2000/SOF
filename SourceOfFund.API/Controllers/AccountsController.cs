@@ -129,5 +129,24 @@ namespace SourceOfFund.API.Controllers
             }
         }
 
+        [HttpPut]
+        [Route("{accountId}/balances/{balanceTypeId}")]
+        public IActionResult ReturnBalance(int fromAccountId, int ToAccountId, decimal Amount, int? balanceTypeId = 1)
+        {
+            try
+            {
+                _accountBalanceService.ReturnBalance(fromAccountId, ToAccountId, Amount,balanceTypeId);
+                return Ok("200", "");
+            }
+            catch (SourceOfFundException ex)
+            {
+                return BadRequest(ex.Message, ex.ErrorCode);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("", "0");
+            }
+        }
+
     }
 }

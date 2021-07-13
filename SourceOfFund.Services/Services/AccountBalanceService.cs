@@ -10,6 +10,7 @@ using SourceOfFund.Infrastructure;
 using System.Threading.Tasks;
 using SourceOfFund.Data;
 using Microsoft.Extensions.DependencyInjection;
+using SourceOfFund.API.Models;
 
 namespace SourceOfFund.Services.Services
 {
@@ -137,6 +138,39 @@ namespace SourceOfFund.Services.Services
                 TotalBalance = totalBalance
             });
             context.SaveChanges();
+        }
+        public void ReturnBalance(int fromAccountId, int toAccountId, decimal Amount, int? balanceTypeId)
+        {
+            var balancesFromAccount = _balanceType.Getwhere(b => b.ID == balanceTypeId
+           && b.AccountServiceBalances.Any(a => a.AccountID == fromAccountId)
+           && b.AccountServiceAvailableBalances.Any(a => a.AccountID == fromAccountId))
+               .Select(a => new BalancesModel
+               {
+                   Balance = a.AccountServiceBalances.Where(a => a.AccountID == fromAccountId)
+                       .Select(b => b.Balance).FirstOrDefault(),
+                   AvaliableBalance = a.AccountServiceAvailableBalances.Where(a => a.AccountID == fromAccountId)
+                       .Select(b => b.Balance).FirstOrDefault(),
+               }).FirstOrDefault();
+
+            balancesFromAccount.Balance -= Amount;
+            balancesFromAccount.AvaliableBalance -= Amount;
+
+            var balancesToAccount = _balanceType.Getwhere(b => b.ID == balanceTypeId
+          && b.AccountServiceBalances.Any(a => a.AccountID == toAccountId)
+          && b.AccountServiceAvailableBalances.Any(a => a.AccountID == toAccountId))
+              .Select(a => new BalancesModel
+              {
+                  Balance = a.AccountServiceBalances.Where(a => a.AccountID == toAccountId)
+                      .Select(b => b.Balance).FirstOrDefault(),
+                  AvaliableBalance = a.AccountServiceAvailableBalances.Where(a => a.AccountID == toAccountId)
+                      .Select(b => b.Balance).FirstOrDefault(),
+              }).FirstOrDefault();
+
+            balancesToAccount.Balance += Amount;
+            balancesToAccount.AvaliableBalance += Amount;
+
+            _unitOfWork.SaveChanges();
+
         }
     }
 }
