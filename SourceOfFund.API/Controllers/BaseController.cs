@@ -18,7 +18,7 @@ namespace SourceOfFund.API.Controllers
             var response = new AuthorizationErrorMessages
             {
                 Code = errorCode,
-                //Message = errorMessage
+                Message = errorMessage
             };
             return BadRequest(response);
         }

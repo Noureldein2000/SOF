@@ -44,14 +44,14 @@ namespace SourceOfFund.API.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest("", "0");
+                return BadRequest(ex.Message, "0");
             }
         }
 
 
         [HttpPost]
         [Route("{accountId}/balances/{balanceTypeId}/requests/{requestId}")]
-        public IActionResult Post([FromBody] HoldBalanceModel model, int accountId, int balanceTypeId, int requestId)
+        public IActionResult Post([FromBody] HoldBalanceModel model, int accountId, int requestId, int? balanceTypeId = null)
         {
             try
             {

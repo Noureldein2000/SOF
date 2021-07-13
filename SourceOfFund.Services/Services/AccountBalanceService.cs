@@ -45,8 +45,13 @@ namespace SourceOfFund.Services.Services
 
         public void HoldAmount(HoldBalanceDTO model)
         {
+            var holdBalance = _holdBalances.Getwhere(c => c.RequestID == model.RequestId
+            && c.AccountID == model.AccountId && c.Status == ActiveStatus.True).FirstOrDefault();
+            if (holdBalance != null)
+                throw new SourceOfFundException("", "5");
+
             var availableBalance = _accountServiceAvailableBalances.Getwhere(av =>
-            av.AccountID == model.AccountId && av.BalanceTypeID == model.BalanceTypeId).FirstOrDefault();
+            av.AccountID == model.AccountId && model.BalanceTypeId.HasValue ? av.BalanceTypeID == model.BalanceTypeId : av.BalanceTypeID == 1).FirstOrDefault();
 
             if (availableBalance == null || availableBalance.Balance < model.Amount)
                 throw new SourceOfFundException("", "5");
@@ -93,6 +98,9 @@ namespace SourceOfFund.Services.Services
                     AvailableBalance = a.AccountServiceAvailableBalances.Where(a => a.AccountID == accountId)
                         .Select(b => b.Balance).FirstOrDefault(),
                 }).FirstOrDefault();
+
+            if(balances == null)
+                throw new SourceOfFundException("", "0");
 
             return new AccountBalanceDTO
             {
