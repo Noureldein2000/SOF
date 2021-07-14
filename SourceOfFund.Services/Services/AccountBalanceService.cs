@@ -51,7 +51,7 @@ namespace SourceOfFund.Services.Services
                 throw new SourceOfFundException("", "5");
 
             var availableBalance = _accountServiceAvailableBalances.Getwhere(av =>
-            av.AccountID == model.AccountId && model.BalanceTypeId.HasValue ? av.BalanceTypeID == model.BalanceTypeId : av.BalanceTypeID == 1).FirstOrDefault();
+            av.AccountID == model.AccountId && (model.BalanceTypeId.HasValue ? av.BalanceTypeID == model.BalanceTypeId : av.BalanceTypeID == 1)).FirstOrDefault();
 
             if (availableBalance == null || availableBalance.Balance < model.Amount)
                 throw new SourceOfFundException("", "5");
@@ -161,37 +161,37 @@ namespace SourceOfFund.Services.Services
             var toAccountAvaliableBalance = _accountServiceAvailableBalances.Getwhere(x => x.AccountID == toAccountId).FirstOrDefault();
             toAccountAvaliableBalance.Balance += Amount;
 
-            //  var balancesFromAccount = _balanceType.Getwhere(b => b.ID == 1
-            // && b.AccountServiceBalances.Any(a => a.AccountID == fromAccountId)
-            // && b.AccountServiceAvailableBalances.Any(a => a.AccountID == fromAccountId))
-            //     .Select(a => new BalancesModel
-            //     {
-            //         Balance = a.AccountServiceBalances.Where(a => a.AccountID == fromAccountId)
-            //             .Select(b => b.Balance).FirstOrDefault(),
-            //         AvaliableBalance = a.AccountServiceAvailableBalances.Where(a => a.AccountID == fromAccountId)
-            //             .Select(b => b.Balance).FirstOrDefault(),
-            //     }).FirstOrDefault();
+            _unitOfWork.SaveChanges();
 
-            //  balancesFromAccount.Balance -= Amount;
-            //  balancesFromAccount.AvaliableBalance -= Amount;
+        }
+        public void ConfirmTransfer(int fromAccountId, int toAccountId, int requestId)
+        {
+            var holdBalance = _holdBalances.Getwhere(c => c.RequestID == requestId
+           && c.AccountID == fromAccountId && c.Status == ActiveStatus.True).FirstOrDefault();
 
-            //  var balancesToAccount = _balanceType.Getwhere(b => b.ID == 1
-            //&& b.AccountServiceBalances.Any(a => a.AccountID == toAccountId)
-            //&& b.AccountServiceAvailableBalances.Any(a => a.AccountID == toAccountId))
-            //    .Select(a => new BalancesModel
-            //    {
-            //        Balance = a.AccountServiceBalances.Where(a => a.AccountID == toAccountId)
-            //            .Select(b => b.Balance).FirstOrDefault(),
-            //        AvaliableBalance = a.AccountServiceAvailableBalances.Where(a => a.AccountID == toAccountId)
-            //            .Select(b => b.Balance).FirstOrDefault(),
-            //    }).FirstOrDefault();
+            if (holdBalance == null)
+                throw new SourceOfFundException("", "5");
 
-            //  balancesToAccount.Balance += Amount;
-            //  balancesToAccount.AvaliableBalance += Amount;
+            var balancesAccountFrom = _accountServiceBalances.Getwhere(asb => asb.AccountID == fromAccountId).ToList();
+
+            var balancesAccountTo = _accountServiceBalances.Getwhere(asb => asb.AccountID == toAccountId).ToList();
+            var avaliableBalancesAccountTo = _accountServiceAvailableBalances.Getwhere(asb => asb.AccountID == toAccountId).ToList();
+
+            if (balancesAccountFrom.Count <= 0)
+                throw new SourceOfFundException("", "5");
+
+            //var totalBalancesFromAccount = balancesAccountFrom.Sum(b => b.Balance);
+            var sourceBalance = balancesAccountFrom.Where(asb => asb.BalanceTypeID == 1).FirstOrDefault();
+            var targetBalance = balancesAccountTo.Where(asb => asb.BalanceTypeID == 1).FirstOrDefault();
+            var targetAvaliableBalance = avaliableBalancesAccountTo.Where(asb => asb.BalanceTypeID == 1).FirstOrDefault();
+
+            sourceBalance.Balance -= holdBalance.Balance;
+            targetBalance.Balance += holdBalance.Balance;
+            targetAvaliableBalance.Balance += holdBalance.Balance;
+            holdBalance.Status = ActiveStatus.False;
 
             _unitOfWork.SaveChanges();
 
         }
-
     }
 }
