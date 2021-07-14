@@ -148,5 +148,24 @@ namespace SourceOfFund.API.Controllers
             }
         }
 
+        [HttpPost]
+        [Route("{fromAccountId}/{ToAccountId}/requests/{requestId}/")]
+        public IActionResult ConfirmTransfer(int fromAccountId, int ToAccountId, int requestId)
+        {
+            try
+            {
+                _accountBalanceService.ConfirmTransfer(fromAccountId, ToAccountId, requestId);
+                return Ok("200", "");
+            }
+            catch (SourceOfFundException ex)
+            {
+                return BadRequest(ex.Message, ex.ErrorCode);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("", "0");
+            }
+        }
+
     }
 }
