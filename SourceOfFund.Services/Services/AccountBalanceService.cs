@@ -99,7 +99,7 @@ namespace SourceOfFund.Services.Services
                         .Select(b => b.Balance).FirstOrDefault(),
                 }).FirstOrDefault();
 
-            if(balances == null)
+            if (balances == null)
                 throw new SourceOfFundException("", "0");
 
             return new AccountBalanceDTO
@@ -128,9 +128,9 @@ namespace SourceOfFund.Services.Services
             _unitOfWork.SaveChanges();
 
             Task.Run(() => CreateBalanceHistory(
-                model.TransactionId, model.AccountId, holdBalance.BalanceTypeID.Value, 
+                model.TransactionId, model.AccountId, holdBalance.BalanceTypeID.Value,
                 holdBalance.AvailableBalanceBefore, totalBalances));
-            
+
         }
         public void CreateBalanceHistory(int transactionId, int accountId, int balanceTypeId, decimal beforeBalance, decimal totalBalance)
         {
@@ -149,33 +149,45 @@ namespace SourceOfFund.Services.Services
         }
         public void ReturnBalance(int fromAccountId, int toAccountId, decimal Amount)
         {
-            var balancesFromAccount = _balanceType.Getwhere(b => b.ID == 1
-           && b.AccountServiceBalances.Any(a => a.AccountID == fromAccountId)
-           && b.AccountServiceAvailableBalances.Any(a => a.AccountID == fromAccountId))
-               .Select(a => new BalancesModel
-               {
-                   Balance = a.AccountServiceBalances.Where(a => a.AccountID == fromAccountId)
-                       .Select(b => b.Balance).FirstOrDefault(),
-                   AvaliableBalance = a.AccountServiceAvailableBalances.Where(a => a.AccountID == fromAccountId)
-                       .Select(b => b.Balance).FirstOrDefault(),
-               }).FirstOrDefault();
+            var fromAccountBalance = _accountServiceBalances.Getwhere(x => x.AccountID == fromAccountId).FirstOrDefault();
+            fromAccountBalance.Balance -= Amount;
 
-            balancesFromAccount.Balance -= Amount;
-            balancesFromAccount.AvaliableBalance -= Amount;
+            var fromAccountAvaliableBalance = _accountServiceAvailableBalances.Getwhere(x => x.AccountID == fromAccountId).FirstOrDefault();
+            fromAccountAvaliableBalance.Balance -= Amount;
 
-            var balancesToAccount = _balanceType.Getwhere(b => b.ID == 1
-          && b.AccountServiceBalances.Any(a => a.AccountID == toAccountId)
-          && b.AccountServiceAvailableBalances.Any(a => a.AccountID == toAccountId))
-              .Select(a => new BalancesModel
-              {
-                  Balance = a.AccountServiceBalances.Where(a => a.AccountID == toAccountId)
-                      .Select(b => b.Balance).FirstOrDefault(),
-                  AvaliableBalance = a.AccountServiceAvailableBalances.Where(a => a.AccountID == toAccountId)
-                      .Select(b => b.Balance).FirstOrDefault(),
-              }).FirstOrDefault();
+            var toAccountBalance = _accountServiceBalances.Getwhere(x => x.AccountID == toAccountId).FirstOrDefault();
+            toAccountBalance.Balance += Amount;
 
-            balancesToAccount.Balance += Amount;
-            balancesToAccount.AvaliableBalance += Amount;
+            var toAccountAvaliableBalance = _accountServiceAvailableBalances.Getwhere(x => x.AccountID == toAccountId).FirstOrDefault();
+            toAccountAvaliableBalance.Balance += Amount;
+
+            //  var balancesFromAccount = _balanceType.Getwhere(b => b.ID == 1
+            // && b.AccountServiceBalances.Any(a => a.AccountID == fromAccountId)
+            // && b.AccountServiceAvailableBalances.Any(a => a.AccountID == fromAccountId))
+            //     .Select(a => new BalancesModel
+            //     {
+            //         Balance = a.AccountServiceBalances.Where(a => a.AccountID == fromAccountId)
+            //             .Select(b => b.Balance).FirstOrDefault(),
+            //         AvaliableBalance = a.AccountServiceAvailableBalances.Where(a => a.AccountID == fromAccountId)
+            //             .Select(b => b.Balance).FirstOrDefault(),
+            //     }).FirstOrDefault();
+
+            //  balancesFromAccount.Balance -= Amount;
+            //  balancesFromAccount.AvaliableBalance -= Amount;
+
+            //  var balancesToAccount = _balanceType.Getwhere(b => b.ID == 1
+            //&& b.AccountServiceBalances.Any(a => a.AccountID == toAccountId)
+            //&& b.AccountServiceAvailableBalances.Any(a => a.AccountID == toAccountId))
+            //    .Select(a => new BalancesModel
+            //    {
+            //        Balance = a.AccountServiceBalances.Where(a => a.AccountID == toAccountId)
+            //            .Select(b => b.Balance).FirstOrDefault(),
+            //        AvaliableBalance = a.AccountServiceAvailableBalances.Where(a => a.AccountID == toAccountId)
+            //            .Select(b => b.Balance).FirstOrDefault(),
+            //    }).FirstOrDefault();
+
+            //  balancesToAccount.Balance += Amount;
+            //  balancesToAccount.AvaliableBalance += Amount;
 
             _unitOfWork.SaveChanges();
 
