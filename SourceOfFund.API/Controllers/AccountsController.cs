@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using SourceOfFund.API.Models;
 using SourceOfFund.Infrastructure.Helpers;
 using SourceOfFund.Services.DTOs;
@@ -7,8 +6,7 @@ using SourceOfFund.Services.Models;
 using SourceOfFund.Services.Services;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Swashbuckle.AspNetCore;
 
 namespace SourceOfFund.API.Controllers
 {
@@ -25,6 +23,7 @@ namespace SourceOfFund.API.Controllers
 
         [HttpGet]
         [Route("{accountId}/balances/{balanceTypeId}")]
+        [ProducesResponseType(typeof(AccountBalanceResponseModel), 200)]
         public IActionResult GetBalance(int accountId, int balanceTypeId)
         {
             try
@@ -130,12 +129,12 @@ namespace SourceOfFund.API.Controllers
         }
 
         [HttpPut]
-        [Route("{fromAccountId}/{ToAccountId}/balances/{Amount}")]
-        public IActionResult ReturnBalance(int fromAccountId, int ToAccountId, decimal Amount)
+        [Route("ReturnBalance/{fromAccountId}/{toAccountId}/balances/{amount}")]
+        public IActionResult ReturnBalance(int fromAccountId, int toAccountId, decimal amount)
         {
             try
             {
-                _accountBalanceService.ReturnBalance(fromAccountId, ToAccountId, Amount);
+                _accountBalanceService.ReturnBalance(fromAccountId, toAccountId, amount);
                 return Ok("200", "");
             }
             catch (SourceOfFundException ex)
