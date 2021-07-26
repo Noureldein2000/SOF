@@ -196,25 +196,28 @@ namespace SourceOfFund.Services.Services
 
         public void ManageBalance(int fromAccountId, int toAccountId, decimal amount, TransactionType transactionType)
         {
-            var fromAccountBalance = _accountServiceBalances.Getwhere(x => x.AccountID == fromAccountId).FirstOrDefault();
+            //var fromAccountBalance = _accountServiceBalances.Getwhere(x => x.AccountID == fromAccountId).FirstOrDefault();
 
-            var fromAccountAvaliableBalance = _accountServiceAvailableBalances.Getwhere(x => x.AccountID == fromAccountId).FirstOrDefault();
+            //var fromAccountAvaliableBalance = _accountServiceAvailableBalances.Getwhere(x => x.AccountID == fromAccountId).FirstOrDefault();
 
             var toAccountBalance = _accountServiceBalances.Getwhere(x => x.AccountID == toAccountId).FirstOrDefault();
 
             var toAccountAvaliableBalance = _accountServiceAvailableBalances.Getwhere(x => x.AccountID == toAccountId).FirstOrDefault();
 
+            if(toAccountBalance == null || toAccountAvaliableBalance == null)
+                throw new SourceOfFundException("", "5");
+
             switch (transactionType)
             {
-                case TransactionType.encrypment:
-                    fromAccountAvaliableBalance.Balance -= amount;
-                    fromAccountBalance.Balance -= amount;
+                case TransactionType.Increment:
+                    //fromAccountAvaliableBalance.Balance -= amount;
+                    //fromAccountBalance.Balance -= amount;
 
                     toAccountAvaliableBalance.Balance += amount;
                     toAccountBalance.Balance += amount;
 
                     break;
-                case TransactionType.decrypment:
+                case TransactionType.Decrement:
                     toAccountAvaliableBalance.Balance -= amount;
                     toAccountBalance.Balance -= amount;
 

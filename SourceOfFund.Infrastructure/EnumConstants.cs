@@ -23,7 +23,7 @@ namespace SourceOfFund.Infrastructure
 
     public enum TransactionType : short
     {
-        encrypment = 1,
-        decrypment = 2
+        Increment = 1,
+        Decrement = 2
     }
 }
