@@ -20,4 +20,10 @@ namespace SourceOfFund.Infrastructure
         True = 1,
         False = 0
     }
+
+    public enum TransactionType : short
+    {
+        encrypment = 1,
+        decrypment = 2
+    }
 }
