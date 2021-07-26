@@ -7,6 +7,7 @@ using SourceOfFund.Services.Services;
 using System;
 using System.Collections.Generic;
 using Swashbuckle.AspNetCore;
+using SourceOfFund.Infrastructure;
 
 namespace SourceOfFund.API.Controllers
 {
@@ -166,5 +167,23 @@ namespace SourceOfFund.API.Controllers
             }
         }
 
+        [HttpPost]
+        [Route("ManageBalance/{fromAccountId}/{toAccountId}/balances/{amount}/{transactionType}")]
+        public IActionResult ManageBalance(int fromAccountId, int toAccountId, decimal amount, TransactionType transactionType)
+        {
+            try
+            {
+                _accountBalanceService.ManageBalance(fromAccountId, toAccountId, amount,transactionType);
+                return Ok("200", "");
+            }
+            catch (SourceOfFundException ex)
+            {
+                return BadRequest(ex.Message, ex.ErrorCode);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("", "0");
+            }
+        }
     }
 }
