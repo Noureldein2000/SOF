@@ -21,7 +21,7 @@ namespace SourceOfFund.Infrastructure
         False = 0
     }
 
-    public enum TransactionType : short
+    public enum TransactionType 
     {
         Increment = 1,
         Decrement = 2
