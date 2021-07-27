@@ -127,9 +127,9 @@ namespace SourceOfFund.Services.Services
             holdBalance.Status = ActiveStatus.False;
             _unitOfWork.SaveChanges();
 
-            Task.Run(() => CreateBalanceHistory(
-                model.TransactionId, model.AccountId, holdBalance.BalanceTypeID.Value,
-                holdBalance.AvailableBalanceBefore, totalBalances));
+            //Task.Run(() => CreateBalanceHistory(
+            //    model.TransactionId, model.AccountId, holdBalance.BalanceTypeID.Value,
+            //    holdBalance.AvailableBalanceBefore, totalBalances));
 
         }
         public void CreateBalanceHistory(int transactionId, int accountId, int balanceTypeId, decimal beforeBalance, decimal totalBalance)
