@@ -125,27 +125,32 @@ namespace SourceOfFund.Services.Services
 
             targetBalance.Balance -= holdBalance.Balance;
             holdBalance.Status = ActiveStatus.False;
-            _unitOfWork.SaveChanges();
+            //_unitOfWork.SaveChanges();
 
-            //Task.Run(() => CreateBalanceHistory(
-            //    model.TransactionId, model.AccountId, holdBalance.BalanceTypeID.Value,
-            //    holdBalance.AvailableBalanceBefore, totalBalances));
+            //Task.Run(() => 
+            CreateBalanceHistory(
+                model.TransactionIds, model.AccountId, holdBalance.BalanceTypeID.Value,
+                holdBalance.AvailableBalanceBefore, totalBalances);
+            //);
 
         }
-        public void CreateBalanceHistory(int transactionId, int accountId, int balanceTypeId, decimal beforeBalance, decimal totalBalance)
+        public void CreateBalanceHistory(List<int> transactionIds, int accountId, int balanceTypeId, decimal beforeBalance, decimal totalBalance)
         {
-            using var scope = _serviceProvider.CreateScope();
-            var services = scope.ServiceProvider;
-            var context = services.GetRequiredService<ApplicationDbContext>();
-            context.BalanceHistories.Add(new BalanceHistory
+            //using var scope = _serviceProvider.CreateScope();
+            //var services = scope.ServiceProvider;
+            //var context = services.GetRequiredService<ApplicationDbContext>();
+            foreach (var transactionId in transactionIds)
             {
-                AccountID = accountId,
-                BalanceBefore = beforeBalance,
-                BalanceTypeID = balanceTypeId,
-                TransactionID = transactionId,
-                TotalBalance = totalBalance
-            });
-            context.SaveChanges();
+                _balanceHistory.Add(new BalanceHistory
+                {
+                    AccountID = accountId,
+                    BalanceBefore = beforeBalance,
+                    BalanceTypeID = balanceTypeId,
+                    TransactionID = transactionId,
+                    TotalBalance = totalBalance
+                });
+            }
+            _unitOfWork.SaveChanges();
         }
         public void ReturnBalance(int fromAccountId, int toAccountId, decimal Amount)
         {

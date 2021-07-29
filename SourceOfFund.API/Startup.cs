@@ -8,12 +8,14 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using SourceOfFund.API.Helpers;
 using SourceOfFund.Data;
 using SourceOfFund.Services.Repositories;
 using SourceOfFund.Services.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace SourceOfFund.API
@@ -36,7 +38,7 @@ namespace SourceOfFund.API
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
-        { 
+        {
 
             services.AddDbContext<ApplicationDbContext>(option =>
                 option.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"))
@@ -49,14 +51,14 @@ namespace SourceOfFund.API
             services.AddControllers()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
                 .AddJsonOptions(options =>
-                {
-                    options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
-                }).AddXmlSerializerFormatters();
+                    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter())
+                );
+
 
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "API", Version = "v1" });
-
+                //c.DocumentFilter<SwaggerAddEnumDescriptions>();
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     Description = "JWT Authorization header using the Bearer scheme (Example: 'Bearer 12345abcdef')",
@@ -80,7 +82,7 @@ namespace SourceOfFund.API
                         Array.Empty<string>()
                     }
                 });
-            });
+            }).AddSwaggerGenNewtonsoftSupport();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

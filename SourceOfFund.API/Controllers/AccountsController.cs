@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using Swashbuckle.AspNetCore;
 using SourceOfFund.Infrastructure;
+using System.Linq;
 
 namespace SourceOfFund.API.Controllers
 {
@@ -40,7 +41,7 @@ namespace SourceOfFund.API.Controllers
             }
             catch (SourceOfFundException ex)
             {
-                return BadRequest(ex.Message, ex.ErrorCode);
+                return Ok(ex.Message, ex.ErrorCode);
             }
             catch (Exception ex)
             {
@@ -63,15 +64,15 @@ namespace SourceOfFund.API.Controllers
                     RequestId = requestId,
                     BalanceTypeId = balanceTypeId
                 });
-                return Ok("200", "");
+                return Ok("Success", "200");
             }
             catch (SourceOfFundException ex)
             {
-                return BadRequest(ex.Message, ex.ErrorCode);
+                return Ok(ex.Message, ex.ErrorCode);
             }
             catch (Exception ex)
             {
-                return BadRequest("0", "");
+                return BadRequest(ex.Message, "0");
             }
         }
         [HttpDelete]
@@ -88,21 +89,21 @@ namespace SourceOfFund.API.Controllers
                     AccountId = accountId,
                     RequestId = requestId,
                 });
-                return Ok("200", "");
+                return Ok("Success", "200");
             }
             catch (SourceOfFundException ex)
             {
-                return BadRequest(ex.Message, ex.ErrorCode);
+                return Ok(ex.Message, ex.ErrorCode);
             }
             catch (Exception ex)
             {
-                return BadRequest("", "0");
+                return BadRequest(ex.Message, "0");
             }
         }
 
         [HttpPut]
-        [Route("{accountId}/requests/{requestId}/transactions/{transactionId}")]
-        public IActionResult Confirm(int accountId, int requestId, int transactionId)
+        [Route("{accountId}/requests/{requestId}")]
+        public IActionResult Confirm(int accountId, int requestId, [FromQuery] int[] transactionIds)
         {
             try
             {
@@ -113,17 +114,17 @@ namespace SourceOfFund.API.Controllers
                 {
                     AccountId = accountId,
                     RequestId = requestId,
-                    TransactionId = transactionId
-                });
-                return Ok("200", "");
+                    TransactionIds = transactionIds.ToList()
+                }); ;
+                return Ok("Success", "200");
             }
             catch (SourceOfFundException ex)
             {
-                return BadRequest(ex.Message, ex.ErrorCode);
+                return Ok(ex.Message, ex.ErrorCode);
             }
             catch (Exception ex)
             {
-                return BadRequest("", "0");
+                return BadRequest(ex.Message, "0");
             }
         }
 
@@ -134,15 +135,15 @@ namespace SourceOfFund.API.Controllers
             try
             {
                 _accountBalanceService.ReturnBalance(fromAccountId, toAccountId, amount);
-                return Ok("200", "");
+                return Ok("Success", "200");
             }
             catch (SourceOfFundException ex)
             {
-                return BadRequest(ex.Message, ex.ErrorCode);
+                return Ok(ex.Message, ex.ErrorCode);
             }
             catch (Exception ex)
             {
-                return BadRequest("", "0");
+                return BadRequest(ex.Message, "0");
             }
         }
 
@@ -153,15 +154,15 @@ namespace SourceOfFund.API.Controllers
             try
             {
                 _accountBalanceService.ConfirmTransfer(fromAccountId, toAccountId, requestId);
-                return Ok("200", "");
+                return Ok("Success", "200");
             }
             catch (SourceOfFundException ex)
             {
-                return BadRequest(ex.Message, ex.ErrorCode);
+                return Ok(ex.Message, ex.ErrorCode);
             }
             catch (Exception ex)
             {
-                return BadRequest("", "0");
+                return BadRequest(ex.Message, "0");
             }
         }
 
@@ -172,15 +173,15 @@ namespace SourceOfFund.API.Controllers
             try
             {
                 _accountBalanceService.ManageBalance(fromAccountId, toAccountId, amount,transactionType);
-                return Ok("200", "");
+                return Ok("Success", "200");
             }
             catch (SourceOfFundException ex)
             {
-                return BadRequest(ex.Message, ex.ErrorCode);
+                return Ok(ex.Message, ex.ErrorCode);
             }
             catch (Exception ex)
             {
-                return BadRequest("", "0");
+                return BadRequest(ex.Message, "0");
             }
         }
     }
