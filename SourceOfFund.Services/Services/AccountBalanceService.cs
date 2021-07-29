@@ -209,7 +209,7 @@ namespace SourceOfFund.Services.Services
 
             var toAccountAvaliableBalance = _accountServiceAvailableBalances.Getwhere(x => x.AccountID == toAccountId).FirstOrDefault();
 
-            if(toAccountBalance == null || toAccountAvaliableBalance == null)
+            if (toAccountBalance == null || toAccountAvaliableBalance == null)
                 throw new SourceOfFundException("", "5");
 
             switch (transactionType)
@@ -230,6 +230,32 @@ namespace SourceOfFund.Services.Services
                 default:
                     break;
             }
+            _unitOfWork.SaveChanges();
+        }
+
+        public void CreateAccount(int accountId, decimal amount)
+        {
+            var toAccountBalance = _accountServiceBalances.Getwhere(x => x.AccountID == accountId).FirstOrDefault();
+
+            var toAccountAvaliableBalance = _accountServiceAvailableBalances.Getwhere(x => x.AccountID == accountId).FirstOrDefault();
+
+            if (toAccountBalance != null || toAccountAvaliableBalance != null)
+                throw new SourceOfFundException("", "5");
+
+            _accountServiceAvailableBalances.Add(new AccountServiceAvailableBalance
+            {
+                AccountID = accountId,
+                Balance = amount,
+                BalanceTypeID = 1
+            });
+
+            _accountServiceBalances.Add(new AccountServiceBalance
+            {
+                AccountID = accountId,
+                Balance = amount,
+                BalanceTypeID = 1
+            });
+
             _unitOfWork.SaveChanges();
         }
     }

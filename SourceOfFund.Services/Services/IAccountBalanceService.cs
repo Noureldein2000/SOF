@@ -15,5 +15,6 @@ namespace SourceOfFund.Services.Services
         void ConfirmTransfer(int fromAccountId, int toAccountId, int requestId);
         void ManageBalance(int fromAccountId, int toAccountId, decimal amount, TransactionType transactionType);
         AccountBalanceDTO GetBalance(int accountId, int balanceTypeId);
+        void CreateAccount(int accountId, decimal amount);
     }
 }

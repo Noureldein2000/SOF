@@ -172,7 +172,26 @@ namespace SourceOfFund.API.Controllers
         {
             try
             {
-                _accountBalanceService.ManageBalance(fromAccountId, toAccountId, amount,transactionType);
+                _accountBalanceService.ManageBalance(fromAccountId, toAccountId, amount, transactionType);
+                return Ok("Success", "200");
+            }
+            catch (SourceOfFundException ex)
+            {
+                return Ok(ex.Message, ex.ErrorCode);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message, "0");
+            }
+        }
+
+        [HttpPost]
+        [Route("CreateAccount/{accountId}/balances/{amount}")]
+        public IActionResult CreateAccount(int accountId, decimal amount)
+        {
+            try
+            {
+                _accountBalanceService.CreateAccount(accountId, amount);
                 return Ok("Success", "200");
             }
             catch (SourceOfFundException ex)
