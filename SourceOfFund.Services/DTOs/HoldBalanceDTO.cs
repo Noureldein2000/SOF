@@ -10,6 +10,6 @@ namespace SourceOfFund.Services.DTOs
         public int AccountId { get; set; }
         public int? BalanceTypeId { get; set; }
         public int RequestId { get; set; }
-        public int TransactionId { get; set; }
+        public List<int> TransactionIds { get; set; }
     }
 }
