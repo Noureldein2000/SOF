@@ -47,8 +47,6 @@ namespace SourceOfFund.API.Controllers
                 return BadRequest(ex.Message, "0");
             }
         }
-
-
         [HttpPost]
         [Route("{accountId}/balances/{balanceTypeId}/requests/{requestId}")]
         public IActionResult Post([FromBody] HoldBalanceModel model, int accountId, int requestId, int? balanceTypeId = null)
@@ -149,7 +147,7 @@ namespace SourceOfFund.API.Controllers
         }
 
         [HttpPost]
-        [Route("{fromAccountId}/{toAccountId}/requests/{requestId}/")]
+        [Route("ConfirmTransfer/{fromAccountId}/{toAccountId}/requests/{requestId}")]
         public IActionResult ConfirmTransfer(int fromAccountId, int toAccountId, int requestId)
         {
             try
