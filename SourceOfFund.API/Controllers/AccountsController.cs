@@ -172,7 +172,7 @@ namespace SourceOfFund.API.Controllers
         {
             try
             {
-                _accountBalanceService.ManageBalance(fromAccountId, toAccountId, amount, transactionType);
+                _accountBalanceService.ManageBalance(fromAccountId, toAccountId, amount);
                 return Ok("Success", "200");
             }
             catch (SourceOfFundException ex)

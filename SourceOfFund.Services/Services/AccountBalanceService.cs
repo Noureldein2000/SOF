@@ -199,11 +199,11 @@ namespace SourceOfFund.Services.Services
 
         }
 
-        public void ManageBalance(int fromAccountId, int toAccountId, decimal amount, TransactionType transactionType)
+        public void ManageBalance(int fromAccountId, int toAccountId, decimal amount)
         {
-            //var fromAccountBalance = _accountServiceBalances.Getwhere(x => x.AccountID == fromAccountId).FirstOrDefault();
+            var fromAccountBalance = _accountServiceBalances.Getwhere(x => x.AccountID == fromAccountId).FirstOrDefault();
 
-            //var fromAccountAvaliableBalance = _accountServiceAvailableBalances.Getwhere(x => x.AccountID == fromAccountId).FirstOrDefault();
+            var fromAccountAvaliableBalance = _accountServiceAvailableBalances.Getwhere(x => x.AccountID == fromAccountId).FirstOrDefault();
 
             var toAccountBalance = _accountServiceBalances.Getwhere(x => x.AccountID == toAccountId).FirstOrDefault();
 
@@ -212,24 +212,27 @@ namespace SourceOfFund.Services.Services
             if (toAccountBalance == null || toAccountAvaliableBalance == null)
                 throw new SourceOfFundException("", "5");
 
-            switch (transactionType)
-            {
-                case TransactionType.Increment:
-                    //fromAccountAvaliableBalance.Balance -= amount;
-                    //fromAccountBalance.Balance -= amount;
+            fromAccountAvaliableBalance.Balance -= amount;
+            fromAccountBalance.Balance -= amount;
 
-                    toAccountAvaliableBalance.Balance += amount;
-                    toAccountBalance.Balance += amount;
+            toAccountAvaliableBalance.Balance += amount;
+            toAccountBalance.Balance += amount;
 
-                    break;
-                case TransactionType.Decrement:
-                    toAccountAvaliableBalance.Balance -= amount;
-                    toAccountBalance.Balance -= amount;
+            //switch (transactionType)
+            //{
+            //    case TransactionType.Increment:
 
-                    break;
-                default:
-                    break;
-            }
+
+            //        break;
+            //    case TransactionType.Decrement:
+            //        toAccountAvaliableBalance.Balance -= amount;
+            //        toAccountBalance.Balance -= amount;
+
+
+            //        break;
+            //    default:
+            //        break;
+            //}
             _unitOfWork.SaveChanges();
         }
 
