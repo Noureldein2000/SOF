@@ -10,6 +10,7 @@ using Swashbuckle.AspNetCore;
 using SourceOfFund.Infrastructure;
 using System.Linq;
 using Microsoft.Extensions.Logging;
+using System.Data;
 
 namespace SourceOfFund.API.Controllers
 {
@@ -68,18 +69,23 @@ namespace SourceOfFund.API.Controllers
                     RequestId = requestId,
                     BalanceTypeId = balanceTypeId
                 });
-                return Ok("Success", "200");
+                
             }
             catch (SourceOfFundException ex)
             {
                 _logger.LogError(ex, "[Post Exception]");
                 return Ok(ex.Message, ex.ErrorCode);
             }
+            catch (DBConcurrencyException dbex)
+            {
+                _logger.LogError("[DBConcurrency Exception]");
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "[Post Exception]");
                 return BadRequest(ex.Message, "0");
             }
+            return Ok("Success", "200");
         }
         [HttpDelete]
         [Route("{accountId}/requests/{requestId}")]
@@ -96,18 +102,23 @@ namespace SourceOfFund.API.Controllers
                     AccountId = accountId,
                     RequestId = requestId,
                 });
-                return Ok("Success", "200");
+                
             }
             catch (SourceOfFundException ex)
             {
                 _logger.LogError(ex, "[Refund Exception]");
                 return Ok(ex.Message, ex.ErrorCode);
             }
+            catch (DBConcurrencyException dbex)
+            {
+                _logger.LogError("[DBConcurrency Exception]");
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "[Refund Exception]");
                 return BadRequest(ex.Message, "0");
             }
+            return Ok("Success", "200");
         }
 
         [HttpPut]
@@ -125,18 +136,22 @@ namespace SourceOfFund.API.Controllers
                     RequestId = requestId,
                     TransactionIds = transactionIds.ToList()
                 }); ;
-                return Ok("Success", "200");
             }
             catch (SourceOfFundException ex)
             {
                 _logger.LogError(ex, "[Confirm Exception]");
                 return Ok(ex.Message, ex.ErrorCode);
             }
+            catch (DBConcurrencyException dbex)
+            {
+                _logger.LogError("[DBConcurrency Exception]");
+                return Ok("Success", "200");
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "[Confirm Exception]");
-                return BadRequest(ex.Message, "0");
             }
+            return Ok("Success", "200");
         }
 
         [HttpPut]
