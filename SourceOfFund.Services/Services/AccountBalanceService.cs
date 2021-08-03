@@ -11,6 +11,8 @@ using System.Threading.Tasks;
 using SourceOfFund.Data;
 using Microsoft.Extensions.DependencyInjection;
 using SourceOfFund.API.Models;
+using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
 
 namespace SourceOfFund.Services.Services
 {
@@ -22,7 +24,7 @@ namespace SourceOfFund.Services.Services
         private readonly IBaseRepository<BalanceType, int> _balanceType;
         private readonly IBaseRepository<BalanceHistory, int> _balanceHistory;
         private readonly IServiceProvider _serviceProvider;
-
+        private static ILogger<AccountBalanceService> _logger;
         private readonly IUnitOfWork _unitOfWork;
         public AccountBalanceService(
             IBaseRepository<AccountServiceBalance, int> accountServiceBalances,
@@ -31,7 +33,8 @@ namespace SourceOfFund.Services.Services
             IBaseRepository<BalanceType, int> balanceType,
             IBaseRepository<BalanceHistory, int> balanceHistory,
             IServiceProvider serviceProvider,
-            IUnitOfWork unitOfWork
+            IUnitOfWork unitOfWork,
+            ILogger<AccountBalanceService> logger
             )
         {
             _accountServiceBalances = accountServiceBalances;
@@ -41,33 +44,42 @@ namespace SourceOfFund.Services.Services
             _balanceType = balanceType;
             _balanceHistory = balanceHistory;
             _serviceProvider = serviceProvider;
+            _logger = logger;
         }
 
         public void HoldAmount(HoldBalanceDTO model)
         {
-            var holdBalance = _holdBalances.Getwhere(c => c.RequestID == model.RequestId
-            && c.AccountID == model.AccountId && c.Status == ActiveStatus.True).FirstOrDefault();
-            if (holdBalance != null)
-                throw new SourceOfFundException("", "5");
-
-            var availableBalance = _accountServiceAvailableBalances.Getwhere(av =>
-            av.AccountID == model.AccountId && (model.BalanceTypeId.HasValue ? av.BalanceTypeID == model.BalanceTypeId : av.BalanceTypeID == 1)).FirstOrDefault();
-
-            if (availableBalance == null || availableBalance.Balance < model.Amount)
-                throw new SourceOfFundException("", "5");
-
-            availableBalance.Balance -= model.Amount;
-            _holdBalances.Add(new HoldBalance
+            //var holdBalance = _holdBalances.Getwhere(c => c.RequestID == model.RequestId
+            //&& c.AccountID == model.AccountId && c.Status == ActiveStatus.True).FirstOrDefault();
+            //if (holdBalance != null)
+            //    throw new SourceOfFundException("", "5");
+            try
             {
-                AccountID = model.AccountId,
-                Balance = model.Amount,
-                RequestID = model.RequestId,
-                SourceID = 1,
-                Status = ActiveStatus.True,
-                AvailableBalanceBefore = availableBalance.Balance,
-                BalanceTypeID = model.BalanceTypeId
-            });
-            _unitOfWork.SaveChanges();
+                var availableBalance = _accountServiceAvailableBalances.Getwhere(av =>
+                    av.AccountID == model.AccountId && (model.BalanceTypeId.HasValue ? av.BalanceTypeID == model.BalanceTypeId : av.BalanceTypeID == 1)).FirstOrDefault();
+
+                if (availableBalance == null || availableBalance.Balance < model.Amount)
+                    throw new SourceOfFundException("", "5");
+
+                availableBalance.Balance -= model.Amount;
+                _holdBalances.Add(new HoldBalance
+                {
+                    AccountID = model.AccountId,
+                    Balance = model.Amount,
+                    RequestID = model.RequestId,
+                    SourceID = 1,
+                    Status = ActiveStatus.True,
+                    AvailableBalanceBefore = availableBalance.Balance,
+                    BalanceTypeID = model.BalanceTypeId
+                });
+                _unitOfWork.SaveChanges();
+            }
+            catch (DbUpdateConcurrencyException upex)
+            {
+                _logger.LogWarning("I am in concurrent exception post");
+                HoldAmount(model);
+            }
+            
         }
         public void RefundAmount(HoldBalanceDTO model)
         {
@@ -110,28 +122,37 @@ namespace SourceOfFund.Services.Services
         }
         public void ConfirmAmount(HoldBalanceDTO model)
         {
-            var holdBalance = _holdBalances.Getwhere(c => c.RequestID == model.RequestId
-           && c.AccountID == model.AccountId && c.Status == ActiveStatus.True).FirstOrDefault();
+            try
+            {
+                var holdBalance = _holdBalances.Getwhere(c => c.RequestID == model.RequestId
+                        && c.AccountID == model.AccountId && c.Status == ActiveStatus.True).FirstOrDefault();
 
-            if (holdBalance == null)
-                throw new SourceOfFundException("", "5");
+                if (holdBalance == null)
+                    throw new SourceOfFundException("", "5");
 
-            var balances = _accountServiceBalances.Getwhere(asb => asb.AccountID == model.AccountId).ToList();
+                var balances = _accountServiceBalances.Getwhere(asb => asb.AccountID == model.AccountId).ToList();
 
-            if (balances.Count <= 0)
-                throw new SourceOfFundException("", "5");
-            var totalBalances = balances.Sum(b => b.Balance);
-            var targetBalance = balances.Where(asb => asb.BalanceTypeID == holdBalance.BalanceTypeID).FirstOrDefault();
+                if (balances.Count <= 0)
+                    throw new SourceOfFundException("", "5");
+                var totalBalances = balances.Sum(b => b.Balance);
+                var targetBalance = balances.Where(asb => asb.BalanceTypeID == holdBalance.BalanceTypeID).FirstOrDefault();
 
-            targetBalance.Balance -= holdBalance.Balance;
-            holdBalance.Status = ActiveStatus.False;
-            //_unitOfWork.SaveChanges();
+                targetBalance.Balance -= holdBalance.Balance;
+                holdBalance.Status = ActiveStatus.False;
+                //_unitOfWork.SaveChanges();
 
-            //Task.Run(() => 
-            CreateBalanceHistory(
-                model.TransactionIds, model.AccountId, holdBalance.BalanceTypeID.Value,
-                holdBalance.AvailableBalanceBefore, totalBalances);
-            //);
+                //Task.Run(() => 
+                CreateBalanceHistory(
+                    model.TransactionIds, model.AccountId, holdBalance.BalanceTypeID.Value,
+                    holdBalance.AvailableBalanceBefore, totalBalances);
+                //);
+            }
+            catch (DbUpdateConcurrencyException upex)
+            {
+                _logger.LogWarning("I am in concurrent exception confirm");
+                ConfirmAmount(model);
+            }
+           
 
         }
         public void CreateBalanceHistory(List<int> transactionIds, int accountId, int balanceTypeId, decimal beforeBalance, decimal totalBalance)
@@ -199,11 +220,11 @@ namespace SourceOfFund.Services.Services
 
         }
 
-        public void ManageBalance(int fromAccountId, int toAccountId, decimal amount, TransactionType transactionType)
+        public void ManageBalance(int fromAccountId, int toAccountId, decimal amount)
         {
-            //var fromAccountBalance = _accountServiceBalances.Getwhere(x => x.AccountID == fromAccountId).FirstOrDefault();
+            var fromAccountBalance = _accountServiceBalances.Getwhere(x => x.AccountID == fromAccountId).FirstOrDefault();
 
-            //var fromAccountAvaliableBalance = _accountServiceAvailableBalances.Getwhere(x => x.AccountID == fromAccountId).FirstOrDefault();
+            var fromAccountAvaliableBalance = _accountServiceAvailableBalances.Getwhere(x => x.AccountID == fromAccountId).FirstOrDefault();
 
             var toAccountBalance = _accountServiceBalances.Getwhere(x => x.AccountID == toAccountId).FirstOrDefault();
 
@@ -212,24 +233,27 @@ namespace SourceOfFund.Services.Services
             if (toAccountBalance == null || toAccountAvaliableBalance == null)
                 throw new SourceOfFundException("", "5");
 
-            switch (transactionType)
-            {
-                case TransactionType.Increment:
-                    //fromAccountAvaliableBalance.Balance -= amount;
-                    //fromAccountBalance.Balance -= amount;
+            fromAccountAvaliableBalance.Balance -= amount;
+            fromAccountBalance.Balance -= amount;
 
-                    toAccountAvaliableBalance.Balance += amount;
-                    toAccountBalance.Balance += amount;
+            toAccountAvaliableBalance.Balance += amount;
+            toAccountBalance.Balance += amount;
 
-                    break;
-                case TransactionType.Decrement:
-                    toAccountAvaliableBalance.Balance -= amount;
-                    toAccountBalance.Balance -= amount;
+            //switch (transactionType)
+            //{
+            //    case TransactionType.Increment:
 
-                    break;
-                default:
-                    break;
-            }
+
+            //        break;
+            //    case TransactionType.Decrement:
+            //        toAccountAvaliableBalance.Balance -= amount;
+            //        toAccountBalance.Balance -= amount;
+
+
+            //        break;
+            //    default:
+            //        break;
+            //}
             _unitOfWork.SaveChanges();
         }
 

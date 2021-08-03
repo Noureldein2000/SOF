@@ -13,6 +13,8 @@ namespace SourceOfFund.Data.Configurations
             builder.HasOne(s => s.BalanceType).WithMany(s => s.AccountServiceBalances)
                 .HasForeignKey(s => s.BalanceTypeID)
                 .OnDelete(DeleteBehavior.NoAction);
+
+            builder.Property(s => s.RowVersion).IsConcurrencyToken();
         }
     }
 }

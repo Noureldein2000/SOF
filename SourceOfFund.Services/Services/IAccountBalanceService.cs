@@ -13,7 +13,7 @@ namespace SourceOfFund.Services.Services
         void ConfirmAmount(HoldBalanceDTO model);
         void ReturnBalance(int fromAccountId, int toAccountId, decimal amount);
         void ConfirmTransfer(int fromAccountId, int toAccountId, int requestId);
-        void ManageBalance(int fromAccountId, int toAccountId, decimal amount, TransactionType transactionType);
+        void ManageBalance(int fromAccountId, int toAccountId, decimal amount);
         AccountBalanceDTO GetBalance(int accountId, int balanceTypeId);
         void CreateAccount(int accountId, decimal amount);
     }

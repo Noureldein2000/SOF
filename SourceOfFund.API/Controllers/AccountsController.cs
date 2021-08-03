@@ -9,6 +9,8 @@ using System.Collections.Generic;
 using Swashbuckle.AspNetCore;
 using SourceOfFund.Infrastructure;
 using System.Linq;
+using Microsoft.Extensions.Logging;
+using System.Data;
 
 namespace SourceOfFund.API.Controllers
 {
@@ -18,9 +20,11 @@ namespace SourceOfFund.API.Controllers
     public class AccountsController : BaseController
     {
         private readonly IAccountBalanceService _accountBalanceService;
-        public AccountsController(IAccountBalanceService accountBalanceService)
+        private static ILogger<AccountsController> _logger;
+        public AccountsController(IAccountBalanceService accountBalanceService, ILogger<AccountsController> logger)
         {
             _accountBalanceService = accountBalanceService;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -57,6 +61,7 @@ namespace SourceOfFund.API.Controllers
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
 
+                _logger.LogInformation($"[Post] request id {requestId} with amount {model.Amount}, account id {accountId}");
                 _accountBalanceService.HoldAmount(new HoldBalanceDTO
                 {
                     AccountId = accountId,
@@ -64,16 +69,23 @@ namespace SourceOfFund.API.Controllers
                     RequestId = requestId,
                     BalanceTypeId = balanceTypeId
                 });
-                return Ok("Success", "200");
+                
             }
             catch (SourceOfFundException ex)
             {
+                _logger.LogError(ex, $"[Post SOF Exception] {ex.Message}");
                 return Ok(ex.Message, ex.ErrorCode);
+            }
+            catch (DBConcurrencyException dbex)
+            {
+                _logger.LogError("[DBConcurrency Exception]");
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, $"[Post Exception] {ex.Message}");
                 return BadRequest(ex.Message, "0");
             }
+            return Ok("Success", "200");
         }
         [HttpDelete]
         [Route("{accountId}/requests/{requestId}")]
@@ -84,21 +96,29 @@ namespace SourceOfFund.API.Controllers
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
 
+                _logger.LogInformation($"[Refund] request id {requestId}, account id {accountId}");
                 _accountBalanceService.RefundAmount(new HoldBalanceDTO
                 {
                     AccountId = accountId,
                     RequestId = requestId,
                 });
-                return Ok("Success", "200");
+                
             }
             catch (SourceOfFundException ex)
             {
+                _logger.LogError(ex, "[Refund Exception]");
                 return Ok(ex.Message, ex.ErrorCode);
+            }
+            catch (DBConcurrencyException dbex)
+            {
+                _logger.LogError("[DBConcurrency Exception]");
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "[Refund Exception]");
                 return BadRequest(ex.Message, "0");
             }
+            return Ok("Success", "200");
         }
 
         [HttpPut]
@@ -109,7 +129,7 @@ namespace SourceOfFund.API.Controllers
             {
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
-
+                _logger.LogInformation($"[Confirm] request id {requestId}, account id {accountId}");
                 _accountBalanceService.ConfirmAmount(new HoldBalanceDTO
                 {
                     AccountId = accountId,
@@ -120,12 +140,19 @@ namespace SourceOfFund.API.Controllers
             }
             catch (SourceOfFundException ex)
             {
+                _logger.LogError(ex, $"[Confirm SOF Exception] {ex.Message}");
                 return Ok(ex.Message, ex.ErrorCode);
+            }
+            catch (DBConcurrencyException dbex)
+            {
+                _logger.LogError("[DBConcurrency Exception]");
+                return Ok("Success", "200");
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message, "0");
+                _logger.LogError(ex, $"[Confirm Exception] {ex.Message}");
             }
+            return Ok("Success", "200");
         }
 
         [HttpPut]
@@ -172,7 +199,7 @@ namespace SourceOfFund.API.Controllers
         {
             try
             {
-                _accountBalanceService.ManageBalance(fromAccountId, toAccountId, amount, transactionType);
+                _accountBalanceService.ManageBalance(fromAccountId, toAccountId, amount);
                 return Ok("Success", "200");
             }
             catch (SourceOfFundException ex)
