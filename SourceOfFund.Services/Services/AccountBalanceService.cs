@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using SourceOfFund.Data;
 using Microsoft.Extensions.DependencyInjection;
 using SourceOfFund.API.Models;
+using Microsoft.Extensions.Logging;
 
 namespace SourceOfFund.Services.Services
 {
@@ -22,7 +23,7 @@ namespace SourceOfFund.Services.Services
         private readonly IBaseRepository<BalanceType, int> _balanceType;
         private readonly IBaseRepository<BalanceHistory, int> _balanceHistory;
         private readonly IServiceProvider _serviceProvider;
-
+        private static ILogger<AccountBalanceService> _logger;
         private readonly IUnitOfWork _unitOfWork;
         public AccountBalanceService(
             IBaseRepository<AccountServiceBalance, int> accountServiceBalances,
@@ -31,7 +32,8 @@ namespace SourceOfFund.Services.Services
             IBaseRepository<BalanceType, int> balanceType,
             IBaseRepository<BalanceHistory, int> balanceHistory,
             IServiceProvider serviceProvider,
-            IUnitOfWork unitOfWork
+            IUnitOfWork unitOfWork,
+            ILogger<AccountBalanceService> logger
             )
         {
             _accountServiceBalances = accountServiceBalances;
@@ -41,6 +43,7 @@ namespace SourceOfFund.Services.Services
             _balanceType = balanceType;
             _balanceHistory = balanceHistory;
             _serviceProvider = serviceProvider;
+            _logger = logger;
         }
 
         public void HoldAmount(HoldBalanceDTO model)

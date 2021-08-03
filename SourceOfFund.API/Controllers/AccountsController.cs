@@ -73,7 +73,7 @@ namespace SourceOfFund.API.Controllers
             }
             catch (SourceOfFundException ex)
             {
-                _logger.LogError(ex, "[Post Exception]");
+                _logger.LogError(ex, $"[Post SOF Exception] {ex.Message}");
                 return Ok(ex.Message, ex.ErrorCode);
             }
             catch (DBConcurrencyException dbex)
@@ -82,7 +82,7 @@ namespace SourceOfFund.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "[Post Exception]");
+                _logger.LogError(ex, $"[Post Exception] {ex.Message}");
                 return BadRequest(ex.Message, "0");
             }
             return Ok("Success", "200");
@@ -139,7 +139,7 @@ namespace SourceOfFund.API.Controllers
             }
             catch (SourceOfFundException ex)
             {
-                _logger.LogError(ex, "[Confirm Exception]");
+                _logger.LogError(ex, $"[Confirm SOF Exception] {ex.Message}");
                 return Ok(ex.Message, ex.ErrorCode);
             }
             catch (DBConcurrencyException dbex)
@@ -149,7 +149,7 @@ namespace SourceOfFund.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "[Confirm Exception]");
+                _logger.LogError(ex, $"[Confirm Exception] {ex.Message}");
             }
             return Ok("Success", "200");
         }
