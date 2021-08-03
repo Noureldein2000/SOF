@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using NLog.Web;
 using SourceOfFund.Data;
 using System;
 using System.Collections.Generic;
@@ -16,7 +17,22 @@ namespace SourceOfFund.API
     {
         public static void Main(string[] args)
         {
-            var host = CreateHostBuilder(args).Build();
+            var logger = NLogBuilder.ConfigureNLog("NLog.config").GetCurrentClassLogger();
+            try
+            {
+                logger.Debug("Application Starting Up");
+                CreateHostBuilder(args).Build().Run();
+            }
+            catch (Exception exception)
+            {
+                logger.Error(exception, "Stopped program because of exception");
+                throw;
+            }
+            finally
+            {
+                NLog.LogManager.Shutdown();
+            }
+            //var host = CreateHostBuilder(args).Build();
 
             //using (var scope = host.Services.CreateScope())
             //{
@@ -37,7 +53,7 @@ namespace SourceOfFund.API
             //    }
             //}
 
-            host.Run();
+            //host.Run();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
@@ -45,6 +61,11 @@ namespace SourceOfFund.API
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
-                });
+                }).ConfigureLogging(logging =>
+                {
+                    logging.ClearProviders();
+                    logging.SetMinimumLevel(LogLevel.Trace);
+                })
+                .UseNLog();
     }
 }

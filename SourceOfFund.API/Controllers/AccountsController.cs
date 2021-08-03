@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using Swashbuckle.AspNetCore;
 using SourceOfFund.Infrastructure;
 using System.Linq;
+using Microsoft.Extensions.Logging;
 
 namespace SourceOfFund.API.Controllers
 {
@@ -18,9 +19,11 @@ namespace SourceOfFund.API.Controllers
     public class AccountsController : BaseController
     {
         private readonly IAccountBalanceService _accountBalanceService;
-        public AccountsController(IAccountBalanceService accountBalanceService)
+        private static ILogger<AccountsController> _logger;
+        public AccountsController(IAccountBalanceService accountBalanceService, ILogger<AccountsController> logger)
         {
             _accountBalanceService = accountBalanceService;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -57,6 +60,7 @@ namespace SourceOfFund.API.Controllers
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
 
+                _logger.LogInformation($"[Post] request id {requestId} with amount {model.Amount}, account id {accountId}");
                 _accountBalanceService.HoldAmount(new HoldBalanceDTO
                 {
                     AccountId = accountId,
@@ -68,10 +72,12 @@ namespace SourceOfFund.API.Controllers
             }
             catch (SourceOfFundException ex)
             {
+                _logger.LogError(ex, "[Post Exception]");
                 return Ok(ex.Message, ex.ErrorCode);
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "[Post Exception]");
                 return BadRequest(ex.Message, "0");
             }
         }
@@ -84,6 +90,7 @@ namespace SourceOfFund.API.Controllers
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
 
+                _logger.LogInformation($"[Refund] request id {requestId}, account id {accountId}");
                 _accountBalanceService.RefundAmount(new HoldBalanceDTO
                 {
                     AccountId = accountId,
@@ -93,10 +100,12 @@ namespace SourceOfFund.API.Controllers
             }
             catch (SourceOfFundException ex)
             {
+                _logger.LogError(ex, "[Refund Exception]");
                 return Ok(ex.Message, ex.ErrorCode);
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "[Refund Exception]");
                 return BadRequest(ex.Message, "0");
             }
         }
@@ -109,7 +118,7 @@ namespace SourceOfFund.API.Controllers
             {
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
-
+                _logger.LogInformation($"[Confirm] request id {requestId}, account id {accountId}");
                 _accountBalanceService.ConfirmAmount(new HoldBalanceDTO
                 {
                     AccountId = accountId,
@@ -120,10 +129,12 @@ namespace SourceOfFund.API.Controllers
             }
             catch (SourceOfFundException ex)
             {
+                _logger.LogError(ex, "[Confirm Exception]");
                 return Ok(ex.Message, ex.ErrorCode);
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "[Confirm Exception]");
                 return BadRequest(ex.Message, "0");
             }
         }
