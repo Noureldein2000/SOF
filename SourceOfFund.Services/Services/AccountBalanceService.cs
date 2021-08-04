@@ -55,10 +55,6 @@ namespace SourceOfFund.Services.Services
 
         public void HoldAmount(HoldBalanceDTO model)
         {
-            //var holdBalance = _holdBalances.Getwhere(c => c.RequestID == model.RequestId
-            //&& c.AccountID == model.AccountId && c.Status == ActiveStatus.True).FirstOrDefault();
-            //if (holdBalance != null)
-            //    throw new SourceOfFundException("", "5");
             var sourceId = new SqlParameter("@SourceID", 1);
             var requestId = new SqlParameter("@RequestID", model.RequestId);
             var accountId = new SqlParameter("@AccountID", model.AccountId);
@@ -68,50 +64,11 @@ namespace SourceOfFund.Services.Services
             var statusCodeOutput = new SqlParameter("@StatusCode", 1);
             statusCodeOutput.Direction = ParameterDirection.Output;
 
-            var returnValue = _context.Database.ExecuteSqlRaw(" [dbo].[ManageBalance] @SourceID, @RequestID, @AccountID, @Amount, @BalanceRequestTypeID, @BalanceTypeID, @StatusCode OUTPUT",
+            _context.Database.ExecuteSqlRaw(" [dbo].[ManageBalance] @SourceID, @RequestID, @AccountID, @Amount, @BalanceRequestTypeID, @BalanceTypeID, @StatusCode OUTPUT",
                 sourceId, requestId, accountId, amount, balanceRequestTypeId, balanceTypeId, statusCodeOutput);
 
-            _logger.LogInformation($"[Hold] request id {model.RequestId} value {statusCodeOutput.SqlValue}");
-            //var availableBalance = _context.AccountServiceAvailableBalances.Where(av =>
-            //        av.AccountID == model.AccountId && (model.BalanceTypeId.HasValue ? av.BalanceTypeID == model.BalanceTypeId : av.BalanceTypeID == 1)).FirstOrDefault();
-
-            //if (availableBalance == null || availableBalance.Balance < model.Amount)
-            //    throw new SourceOfFundException("", "5");
-
-            //availableBalance.Balance -= model.Amount;
-            //_context.HoldBalances.Add(new HoldBalance
-            //{
-            //    AccountID = model.AccountId,
-            //    Balance = model.Amount,
-            //    RequestID = model.RequestId,
-            //    SourceID = 1,
-            //    Status = ActiveStatus.True,
-            //    AvailableBalanceBefore = availableBalance.Balance,
-            //    BalanceTypeID = model.BalanceTypeId
-            //});
-            //try
-            //{
-            //    _context.SaveChanges();
-            //    _logger.LogInformation($"[Hold] Succeeded");
-            //}
-            //catch (DbUpdateConcurrencyException ex)
-            //{
-            //    _logger.LogWarning($"I am in concurrent exception hold with request id {model.RequestId}");
-            //    //foreach (var entry in ex.Entries)
-            //    //{
-            //    //    if (entry.Entity is AccountServiceAvailableBalance)
-            //    //    {
-            //    //        var proposedValues = entry.CurrentValues;
-            //    //        var databaseValues = entry.GetDatabaseValues();
-            //    //        _logger.LogWarning($"Before Value {proposedValues["Balance"]} for request id {model.RequestId}");
-            //    //        //proposedValues["Balance"] = databaseValues["Balance"];
-            //    //        entry.OriginalValues.SetValues(databaseValues);
-            //    //        proposedValues["Balance"] = (decimal)proposedValues["Balance"] - model.Amount;
-            //    //        _logger.LogWarning($"After Value {proposedValues["Balance"]} for request id {model.RequestId}");
-            //    //    }
-            //    //}
-            //    HoldAmount(model);
-            //}
+            //_logger.LogInformation($"[Hold] request id {model.RequestId} value {statusCodeOutput.SqlValue}");
+            
 
         }
         public void RefundAmount(HoldBalanceDTO model)
@@ -125,24 +82,10 @@ namespace SourceOfFund.Services.Services
             var statusCodeOutput = new SqlParameter("@StatusCode", 1);
             statusCodeOutput.Direction = ParameterDirection.Output;
 
-            var returnValue = _context.Database.ExecuteSqlRaw(" [dbo].[ManageBalance] @SourceID, @RequestID, @AccountID, @Amount, @BalanceRequestTypeID, @BalanceTypeID, @StatusCode OUTPUT",
+            _context.Database.ExecuteSqlRaw(" [dbo].[ManageBalance] @SourceID, @RequestID, @AccountID, @Amount, @BalanceRequestTypeID, @BalanceTypeID, @StatusCode OUTPUT",
                 sourceId, requestId, accountId, amount, balanceRequestTypeId, balanceTypeId, statusCodeOutput);
 
-            _logger.LogInformation($"[Refund] request id {model.RequestId} value {statusCodeOutput.SqlValue}");
-            //var holdBalance = _holdBalances.Getwhere(c => c.RequestID == model.RequestId
-            //&& c.AccountID == model.AccountId && c.Status == ActiveStatus.True).FirstOrDefault();
-            //if (holdBalance == null)
-            //    throw new SourceOfFundException("", "5");
-
-            //var availableBalance = _accountServiceAvailableBalances.Getwhere(av =>
-            //av.AccountID == model.AccountId && av.BalanceTypeID == holdBalance.BalanceTypeID).FirstOrDefault();
-            //if (availableBalance == null)
-            //    throw new SourceOfFundException("", "5");
-
-            //availableBalance.Balance += holdBalance.Balance;
-            //holdBalance.Status = ActiveStatus.False;
-
-            //_unitOfWork.SaveChanges();
+            //_logger.LogInformation($"[Refund] request id {model.RequestId} value {statusCodeOutput.SqlValue}");
         }
         public AccountBalanceDTO GetBalance(int accountId, int balanceTypeId)
         {
@@ -177,55 +120,10 @@ namespace SourceOfFund.Services.Services
             var statusCodeOutput = new SqlParameter("@StatusCode", 1);
             statusCodeOutput.Direction = ParameterDirection.Output;
 
-            var returnValue = _context.Database.ExecuteSqlRaw(" [dbo].[ManageBalance] @SourceID, @RequestID, @AccountID, @Amount, @BalanceRequestTypeID, @BalanceTypeID, @StatusCode OUTPUT",
+            _context.Database.ExecuteSqlRaw(" [dbo].[ManageBalance] @SourceID, @RequestID, @AccountID, @Amount, @BalanceRequestTypeID, @BalanceTypeID, @StatusCode OUTPUT",
                 sourceId, requestId, accountId, amount, balanceRequestTypeId, balanceTypeId, statusCodeOutput);
 
-            _logger.LogInformation($"[Confirm] request id {model.RequestId} value {statusCodeOutput.SqlValue}");
-            //var holdBalance = _context.HoldBalances.Where(c => c.RequestID == model.RequestId
-            //        && c.AccountID == model.AccountId && c.Status == ActiveStatus.True).FirstOrDefault();
-
-            //if (holdBalance == null)
-            //    throw new SourceOfFundException(model.RequestId.ToString(), "5");
-
-            //var balances = _context.AccountServiceAvailableBalances.Where(asb => asb.AccountID == model.AccountId).ToList();
-
-            //if (balances.Count <= 0)
-            //    throw new SourceOfFundException("", "5");
-            //var totalBalances = balances.Sum(b => b.Balance);
-            //var targetBalance = balances.Where(asb => asb.BalanceTypeID == holdBalance.BalanceTypeID).FirstOrDefault();
-
-            //targetBalance.Balance -= holdBalance.Balance;
-            //holdBalance.Status = ActiveStatus.False;
-            //try
-            //{
-
-            //    _context.SaveChanges();
-            //    _logger.LogInformation($"[Confirm] Succeeded");
-            //    //Task.Run(() => 
-            //    //CreateBalanceHistory(
-            //    //    model.TransactionIds, model.AccountId, holdBalance.BalanceTypeID.Value,
-            //    //    holdBalance.AvailableBalanceBefore, totalBalances);
-            //    //);
-            //}
-            //catch (DbUpdateConcurrencyException ex)
-            //{
-            //    _logger.LogWarning($"I am in concurrent exception confirm request id {model.RequestId}");
-            //    //foreach (var entry in ex.Entries)
-            //    //{
-            //    //    if (entry.Entity is AccountServiceBalance)
-            //    //    {
-            //    //        var proposedValues = entry.CurrentValues;
-            //    //        var databaseValues = entry.GetDatabaseValues();
-            //    //        _logger.LogWarning($"Before Value {proposedValues["Balance"]}");
-            //    //        //proposedValues["Balance"] = databaseValues["Balance"];
-            //    //        entry.OriginalValues.SetValues(databaseValues);
-            //    //        proposedValues["Balance"] = (decimal)proposedValues["Balance"] - model.Amount;
-            //    //        _logger.LogWarning($"Before Value {proposedValues["Balance"]}");
-            //    //    }
-            //    //}
-            //    ConfirmAmount(model);
-            //}
-
+            //_logger.LogInformation($"[Confirm] request id {model.RequestId} value {statusCodeOutput.SqlValue}");
 
         }
         public void CreateBalanceHistory(List<int> transactionIds, int accountId, int balanceTypeId, decimal beforeBalance, decimal totalBalance)
