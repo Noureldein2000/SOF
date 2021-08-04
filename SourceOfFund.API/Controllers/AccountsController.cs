@@ -61,7 +61,6 @@ namespace SourceOfFund.API.Controllers
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
 
-                _logger.LogInformation($"[Post] request id {requestId} with amount {model.Amount}, account id {accountId}");
                 _accountBalanceService.HoldAmount(new HoldBalanceDTO
                 {
                     AccountId = accountId,
@@ -129,17 +128,15 @@ namespace SourceOfFund.API.Controllers
             {
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
-                _logger.LogInformation($"[Confirm] request id {requestId}, account id {accountId}");
                 _accountBalanceService.ConfirmAmount(new HoldBalanceDTO
                 {
                     AccountId = accountId,
                     RequestId = requestId,
                     TransactionIds = transactionIds.ToList()
-                }); ;
+                });
             }
             catch (SourceOfFundException ex)
             {
-                _logger.LogError(ex, $"[Confirm SOF Exception] {ex.Message}");
                 return Ok(ex.Message, ex.ErrorCode);
             }
             catch (DBConcurrencyException dbex)

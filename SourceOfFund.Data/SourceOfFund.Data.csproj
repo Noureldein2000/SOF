@@ -20,6 +20,10 @@
     <Compile Remove="Migrations\20210803113506_AddRowVersion.Designer.cs" />
     <Compile Remove="Migrations\20210803113655_AddRowVersion.cs" />
     <Compile Remove="Migrations\20210803113655_AddRowVersion.Designer.cs" />
+    <Compile Remove="Migrations\20210803131211_AddRowVersion2.cs" />
+    <Compile Remove="Migrations\20210803131211_AddRowVersion2.Designer.cs" />
+    <Compile Remove="Migrations\20210803152852_AddRowVersion2.cs" />
+    <Compile Remove="Migrations\20210803152852_AddRowVersion2.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

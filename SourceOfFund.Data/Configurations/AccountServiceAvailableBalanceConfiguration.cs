@@ -12,12 +12,12 @@ namespace SourceOfFund.Data.Configurations
         public void Configure(EntityTypeBuilder<AccountServiceAvailableBalance> builder)
         {
             builder.HasKey(s => s.ID);
-            builder.Property(s => s.Balance).HasColumnType("decimal(18,3)").IsRequired();
+            builder.Property(s => s.Balance).HasColumnType("decimal(18,3)");
             builder.HasOne(s => s.BalanceType).WithMany(s => s.AccountServiceAvailableBalances)
                 .HasForeignKey(s => s.BalanceTypeID)
                 .OnDelete(DeleteBehavior.NoAction);
 
-            builder.Property(s => s.RowVersion).IsConcurrencyToken();
+            builder.Property(s => s.RowVersion).IsRowVersion().ValueGeneratedOnUpdate();
         }
     }
 }
