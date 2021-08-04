@@ -7,7 +7,7 @@ namespace SourceOfFund.Data.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.Sql(@"
-		Create PROCEDURE [dbo].[ManageBalance]
+	Create PROCEDURE [dbo].[ManageBalance]
 			@SourceID int,
 			@RequestID int ,
 			@AccountID int , 
@@ -17,41 +17,50 @@ namespace SourceOfFund.Data.Migrations
 			,@StatusCode INT OUTPUT
 			AS
 			DECLARE @ISLedgerAccount int, @AccountFromBalanceBefore decimal(18,3)
+			DECLARE @RowsEffected int
 			BEGIN 
-
+			
 			IF @BalanceRequestTypeID = 1 --HOLD 
 				BEGIN
-
-			SELECT  @AccountFromBalanceBefore = ASAB.Balance
-								FROM [AccountServiceAvailableBalances] ASAB
-								INNER JOIN [BalanceTypes] BT ON ASAB.BalanceTypeID = BT.ID
-								WHERE
-								ASAB.[AccountID] = @AccountID AND (ASAB.Balance-@Amount) >= 0
-								AND ASAB.BalanceTypeID = @BalanceTypeID
-			if @AccountFromBalanceBefore > 0
-			BEGIN
-				UPDATE AccountServiceAvailableBalances SET Balance = Balance - @Amount WHERE BalanceTypeID = @BalanceTypeID
-				and AccountID = @AccountID
-
-				IF @@ROWCOUNT > 0 
-					BEGIN
-					INSERT INTO HoldBalances ([AccountID],[Balance],[RequestID],[SourceID], [Status], [AvailableBalanceBefore], [BalanceTypeID], [CreationDate])
-					VALUES(@AccountID,@Amount,@RequestID,@SourceID,1, @AccountFromBalanceBefore, @BalanceTypeID, GETDATE());
-					SELECT @StatusCode = 200;
-					RETURN;
-					END
-				ELSE
+				BEGIN TRANSACTION MainTrx
+				SELECT  @AccountFromBalanceBefore = ASAB.Balance
+									FROM [AccountServiceAvailableBalances] ASAB
+									INNER JOIN [BalanceTypes] BT ON ASAB.BalanceTypeID = BT.ID
+									WHERE
+									ASAB.[AccountID] = @AccountID AND (ASAB.Balance-@Amount) >= 0
+									AND ASAB.BalanceTypeID = @BalanceTypeID
+				if @AccountFromBalanceBefore > 0
 				BEGIN
-					SELECT @StatusCode = 0;
-					RETURN;
+					UPDATE AccountServiceAvailableBalances SET Balance = Balance - @Amount WHERE BalanceTypeID = @BalanceTypeID
+					and AccountID = @AccountID
+					
+					SET @RowsEffected = @@ROWCOUNT
+
+					IF @RowsEffected > 0 
+						BEGIN
+						INSERT INTO HoldBalances ([AccountID],[Balance],[RequestID],[SourceID], [Status], [AvailableBalanceBefore], [BalanceTypeID], [CreationDate])
+						VALUES(@AccountID,@Amount,@RequestID,@SourceID,1, @AccountFromBalanceBefore, @BalanceTypeID, GETDATE());
+						SELECT @StatusCode = 200;
+						COMMIT TRAN MainTrx
+						RETURN;
+						END
+					ELSE
+					BEGIN
+						SELECT @StatusCode = 0;
+						COMMIT TRAN MainTrx
+						RETURN;
 					END
 				END
+					
 				ELSE
 				BEGIN
 					SELECT @StatusCode = 0;
+					COMMIT TRAN MainTrx
 					RETURN;
-					END
+				END
 			END 
+
+
 			ELSE IF @BalanceRequestTypeID = 2 --CONFIRM 
 				BEGIN
 

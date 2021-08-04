@@ -26,7 +26,6 @@ namespace SourceOfFund.Services.Services
         private readonly IBaseRepository<HoldBalance, int> _holdBalances;
         private readonly IBaseRepository<BalanceType, int> _balanceType;
         private readonly IBaseRepository<BalanceHistory, int> _balanceHistory;
-        private readonly IServiceProvider _serviceProvider;
         private static ILogger<AccountBalanceService> _logger;
         private readonly ApplicationDbContext _context;
         private readonly IUnitOfWork _unitOfWork;
@@ -36,7 +35,6 @@ namespace SourceOfFund.Services.Services
             IBaseRepository<HoldBalance, int> holdBalances,
             IBaseRepository<BalanceType, int> balanceType,
             IBaseRepository<BalanceHistory, int> balanceHistory,
-            IServiceProvider serviceProvider,
             IUnitOfWork unitOfWork,
             ILogger<AccountBalanceService> logger,
             ApplicationDbContext context
@@ -48,7 +46,6 @@ namespace SourceOfFund.Services.Services
             _holdBalances = holdBalances;
             _balanceType = balanceType;
             _balanceHistory = balanceHistory;
-            _serviceProvider = serviceProvider;
             _logger = logger;
             _context = context;
         }
