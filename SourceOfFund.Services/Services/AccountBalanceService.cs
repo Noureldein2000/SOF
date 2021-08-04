@@ -14,6 +14,8 @@ using SourceOfFund.API.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Data.SqlClient;
+using System.Data;
+using System.Data.SqlTypes;
 
 namespace SourceOfFund.Services.Services
 {
@@ -63,10 +65,13 @@ namespace SourceOfFund.Services.Services
             var amount = new SqlParameter("@Amount", model.Amount);
             var balanceRequestTypeId = new SqlParameter("@BalanceRequestTypeID", 1);
             var balanceTypeId = new SqlParameter("@BalanceTypeID", 1);
+            var statusCodeOutput = new SqlParameter("@StatusCode", 1);
+            statusCodeOutput.Direction = ParameterDirection.Output;
 
-            var returnValue = _context.Database.ExecuteSqlRaw(" [dbo].[ManageBalance] @SourceID, @RequestID, @AccountID, @Amount, @BalanceRequestTypeID, @BalanceTypeID", 
-                sourceId, requestId, accountId, amount, balanceRequestTypeId, balanceTypeId);
+            var returnValue = _context.Database.ExecuteSqlRaw(" [dbo].[ManageBalance] @SourceID, @RequestID, @AccountID, @Amount, @BalanceRequestTypeID, @BalanceTypeID, @StatusCode OUTPUT",
+                sourceId, requestId, accountId, amount, balanceRequestTypeId, balanceTypeId, statusCodeOutput);
 
+            _logger.LogInformation($"[Hold] request id {model.RequestId} value {statusCodeOutput.SqlValue}");
             //var availableBalance = _context.AccountServiceAvailableBalances.Where(av =>
             //        av.AccountID == model.AccountId && (model.BalanceTypeId.HasValue ? av.BalanceTypeID == model.BalanceTypeId : av.BalanceTypeID == 1)).FirstOrDefault();
 
@@ -107,7 +112,7 @@ namespace SourceOfFund.Services.Services
             //    //}
             //    HoldAmount(model);
             //}
-            
+
         }
         public void RefundAmount(HoldBalanceDTO model)
         {
@@ -117,9 +122,13 @@ namespace SourceOfFund.Services.Services
             var amount = new SqlParameter("@Amount", model.Amount);
             var balanceRequestTypeId = new SqlParameter("@BalanceRequestTypeID", 3);
             var balanceTypeId = new SqlParameter("@BalanceTypeID", 1);
+            var statusCodeOutput = new SqlParameter("@StatusCode", 1);
+            statusCodeOutput.Direction = ParameterDirection.Output;
 
-            var returnValue = _context.Database.ExecuteSqlRaw(" [dbo].[ManageBalance] @SourceID, @RequestID, @AccountID, @Amount, @BalanceRequestTypeID, @BalanceTypeID",
-                sourceId, requestId, accountId, amount, balanceRequestTypeId, balanceTypeId);
+            var returnValue = _context.Database.ExecuteSqlRaw(" [dbo].[ManageBalance] @SourceID, @RequestID, @AccountID, @Amount, @BalanceRequestTypeID, @BalanceTypeID, @StatusCode OUTPUT",
+                sourceId, requestId, accountId, amount, balanceRequestTypeId, balanceTypeId, statusCodeOutput);
+
+            _logger.LogInformation($"[Refund] request id {model.RequestId} value {statusCodeOutput.SqlValue}");
             //var holdBalance = _holdBalances.Getwhere(c => c.RequestID == model.RequestId
             //&& c.AccountID == model.AccountId && c.Status == ActiveStatus.True).FirstOrDefault();
             //if (holdBalance == null)
@@ -165,9 +174,13 @@ namespace SourceOfFund.Services.Services
             var amount = new SqlParameter("@Amount", model.Amount);
             var balanceRequestTypeId = new SqlParameter("@BalanceRequestTypeID", 2);
             var balanceTypeId = new SqlParameter("@BalanceTypeID", 1);
+            var statusCodeOutput = new SqlParameter("@StatusCode", 1);
+            statusCodeOutput.Direction = ParameterDirection.Output;
 
-            var returnValue = _context.Database.ExecuteSqlRaw(" [dbo].[ManageBalance] @SourceID, @RequestID, @AccountID, @Amount, @BalanceRequestTypeID, @BalanceTypeID",
-                sourceId, requestId, accountId, amount, balanceRequestTypeId, balanceTypeId);
+            var returnValue = _context.Database.ExecuteSqlRaw(" [dbo].[ManageBalance] @SourceID, @RequestID, @AccountID, @Amount, @BalanceRequestTypeID, @BalanceTypeID, @StatusCode OUTPUT",
+                sourceId, requestId, accountId, amount, balanceRequestTypeId, balanceTypeId, statusCodeOutput);
+
+            _logger.LogInformation($"[Confirm] request id {model.RequestId} value {statusCodeOutput.SqlValue}");
             //var holdBalance = _context.HoldBalances.Where(c => c.RequestID == model.RequestId
             //        && c.AccountID == model.AccountId && c.Status == ActiveStatus.True).FirstOrDefault();
 

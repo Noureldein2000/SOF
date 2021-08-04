@@ -11,7 +11,7 @@ namespace SourceOfFund.Data.Entities
         public decimal Balance { get; set; }
         public int BalanceTypeID { get; set; }
         public virtual BalanceType BalanceType { get; set; }
-        [Timestamp]
-        public byte[] RowVersion { get; set; }
+        //[Timestamp]
+        //public byte[] RowVersion { get; set; }
     }
 }
