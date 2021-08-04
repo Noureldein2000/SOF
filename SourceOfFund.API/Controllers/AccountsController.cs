@@ -134,6 +134,7 @@ namespace SourceOfFund.API.Controllers
                     RequestId = requestId,
                     TransactionIds = transactionIds.ToList()
                 });
+                return Ok("Success", "200");
             }
             catch (SourceOfFundException ex)
             {
