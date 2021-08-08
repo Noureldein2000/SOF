@@ -58,11 +58,12 @@ namespace SourceOfFund.Services.Services
             var amount = new SqlParameter("@Amount", model.Amount);
             var balanceRequestTypeId = new SqlParameter("@BalanceRequestTypeID", 1);
             var balanceTypeId = new SqlParameter("@BalanceTypeID", 1);
+            var transactionId = new SqlParameter("@TransactionID", 0);
             var statusCodeOutput = new SqlParameter("@StatusCode", 1);
             statusCodeOutput.Direction = ParameterDirection.Output;
 
-            _context.Database.ExecuteSqlRaw(" [dbo].[ManageBalance] @SourceID, @RequestID, @AccountID, @Amount, @BalanceRequestTypeID, @BalanceTypeID, @StatusCode OUTPUT",
-                sourceId, requestId, accountId, amount, balanceRequestTypeId, balanceTypeId, statusCodeOutput);
+            _context.Database.ExecuteSqlRaw(" [dbo].[ManageBalance] @SourceID, @RequestID, @AccountID, @Amount, @BalanceRequestTypeID, @BalanceTypeID, @TransactionID, @StatusCode OUTPUT",
+                sourceId, requestId, accountId, amount, balanceRequestTypeId, balanceTypeId, transactionId, statusCodeOutput);
 
             //_logger.LogInformation($"[Hold] request id {model.RequestId} value {statusCodeOutput.SqlValue}");
             
@@ -76,11 +77,12 @@ namespace SourceOfFund.Services.Services
             var amount = new SqlParameter("@Amount", model.Amount);
             var balanceRequestTypeId = new SqlParameter("@BalanceRequestTypeID", 3);
             var balanceTypeId = new SqlParameter("@BalanceTypeID", 1);
+            var transactionId = new SqlParameter("@TransactionID", 0);
             var statusCodeOutput = new SqlParameter("@StatusCode", 1);
             statusCodeOutput.Direction = ParameterDirection.Output;
 
-            _context.Database.ExecuteSqlRaw(" [dbo].[ManageBalance] @SourceID, @RequestID, @AccountID, @Amount, @BalanceRequestTypeID, @BalanceTypeID, @StatusCode OUTPUT",
-                sourceId, requestId, accountId, amount, balanceRequestTypeId, balanceTypeId, statusCodeOutput);
+            _context.Database.ExecuteSqlRaw(" [dbo].[ManageBalance] @SourceID, @RequestID, @AccountID, @Amount, @BalanceRequestTypeID, @BalanceTypeID, @TransactionID, @StatusCode OUTPUT",
+                sourceId, requestId, accountId, amount, balanceRequestTypeId, balanceTypeId, transactionId, statusCodeOutput);
 
             //_logger.LogInformation($"[Refund] request id {model.RequestId} value {statusCodeOutput.SqlValue}");
         }
@@ -114,11 +116,12 @@ namespace SourceOfFund.Services.Services
             var amount = new SqlParameter("@Amount", model.Amount);
             var balanceRequestTypeId = new SqlParameter("@BalanceRequestTypeID", 2);
             var balanceTypeId = new SqlParameter("@BalanceTypeID", 1);
+            var transactionId = new SqlParameter("@TransactionID", model.TransactionIds.FirstOrDefault());
             var statusCodeOutput = new SqlParameter("@StatusCode", 1);
             statusCodeOutput.Direction = ParameterDirection.Output;
 
-            _context.Database.ExecuteSqlRaw(" [dbo].[ManageBalance] @SourceID, @RequestID, @AccountID, @Amount, @BalanceRequestTypeID, @BalanceTypeID, @StatusCode OUTPUT",
-                sourceId, requestId, accountId, amount, balanceRequestTypeId, balanceTypeId, statusCodeOutput);
+            _context.Database.ExecuteSqlRaw(" [dbo].[ManageBalance] @SourceID, @RequestID, @AccountID, @Amount, @BalanceRequestTypeID, @BalanceTypeID, @TransactionID, @StatusCode OUTPUT",
+                sourceId, requestId, accountId, amount, balanceRequestTypeId, balanceTypeId, transactionId, statusCodeOutput);
 
             //_logger.LogInformation($"[Confirm] request id {model.RequestId} value {statusCodeOutput.SqlValue}");
 
