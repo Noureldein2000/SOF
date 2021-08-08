@@ -13,11 +13,13 @@ namespace SourceOfFund.Data.Migrations
 			@AccountID int , 
 			@Amount decimal(18,3),
 			@BalanceRequestTypeID int,
-			@BalanceTypeID int
+			@BalanceTypeID int,
+			@TransactionID int
 			,@StatusCode INT OUTPUT
 			AS
-			DECLARE @ISLedgerAccount int, @AccountFromBalanceBefore decimal(18,3)
+			DECLARE @ISLedgerAccount int, @AccountFromBalanceBefore decimal(18,3), @TotalBalance decimal(18,3)
 			DECLARE @RowsEffected int
+			DECLARE @Updated table(BeforeBalance decimal(18, 3));
 			BEGIN 
 			
 			IF @BalanceRequestTypeID = 1 --HOLD 
@@ -68,10 +70,22 @@ namespace SourceOfFund.Data.Migrations
 		
 				IF @@ROWCOUNT > 0 
 					BEGIN
+
+					BEGIN TRAN ConfirmTrx
 					UPDATE AccountServiceBalances 
 					SET Balance = (Balance - (SELECT HB.Balance FROM HoldBalances HB WHERE HB.AccountID = @AccountID AND HB.RequestID = @RequestID AND HB.SourceID = @SourceID ))
+					OUTPUT deleted.Balance as BeforeBalance
+					INTO @Updated
 					WHERE [AccountID] = @AccountID 
 					AND BalanceTypeID = @BalanceTypeID
+
+					
+
+					INSERT INTO [dbo].[BalanceHistories] ([CreationDate], [TransactionID], [BalanceBefore], [AccountID], [BalanceTypeID], [TotalBalance])
+					VALUES
+					(GETDATE(), @TransactionID, (SELECT BeforeBalance FROM @Updated), @AccountID, @BalanceTypeID, 
+					(SELECT SUM(Balance) FROM AccountServiceBalances WHERE [AccountID] = @AccountID))
+					COMMIT TRAN ConfirmTrx
 
 					SELECT @StatusCode = 200;
 					RETURN;
