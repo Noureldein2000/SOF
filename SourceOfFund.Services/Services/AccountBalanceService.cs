@@ -58,7 +58,7 @@ namespace SourceOfFund.Services.Services
             var amount = new SqlParameter("@Amount", model.Amount);
             var balanceRequestTypeId = new SqlParameter("@BalanceRequestTypeID", 1);
             var balanceTypeId = new SqlParameter("@BalanceTypeID", 1);
-            var transactionId = new SqlParameter("@TransactionID", 0);
+            var transactionId = new SqlParameter("@TransactionID", 1);
             var statusCodeOutput = new SqlParameter("@StatusCode", 1);
             statusCodeOutput.Direction = ParameterDirection.Output;
 
@@ -77,7 +77,7 @@ namespace SourceOfFund.Services.Services
             var amount = new SqlParameter("@Amount", model.Amount);
             var balanceRequestTypeId = new SqlParameter("@BalanceRequestTypeID", 3);
             var balanceTypeId = new SqlParameter("@BalanceTypeID", 1);
-            var transactionId = new SqlParameter("@TransactionID", 0);
+            var transactionId = new SqlParameter("@TransactionID", 1);
             var statusCodeOutput = new SqlParameter("@StatusCode", 1);
             statusCodeOutput.Direction = ParameterDirection.Output;
 
