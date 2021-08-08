@@ -5,6 +5,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NLog.Web;
+using Serilog;
+using Serilog.Formatting.Compact;
+using Serilog.Sinks.File;
 using SourceOfFund.Data;
 using System;
 using System.Collections.Generic;
@@ -17,20 +20,27 @@ namespace SourceOfFund.API
     {
         public static void Main(string[] args)
         {
-            var logger = NLogBuilder.ConfigureNLog("NLog.config").GetCurrentClassLogger();
+            //var logger = NLogBuilder.ConfigureNLog("NLog.config").GetCurrentClassLogger();
+           
             try
             {
-                logger.Debug("Application Starting Up");
+                //logger.Debug("Application Starting Up");
+                Log.Logger = new LoggerConfiguration()
+                .Enrich.FromLogContext()
+                .WriteTo.Console(new RenderedCompactJsonFormatter())
+                .WriteTo.Debug(outputTemplate: DateTime.Now.ToString())
+                .WriteTo.File("log.txt", rollingInterval: RollingInterval.Day)
+                .CreateLogger();
                 CreateHostBuilder(args).Build().Run();
             }
             catch (Exception exception)
             {
-                logger.Error(exception, "Stopped program because of exception");
+                //logger.Error(exception, "Stopped program because of exception");
                 throw;
             }
             finally
             {
-                NLog.LogManager.Shutdown();
+                //NLog.LogManager.Shutdown();
             }
             //var host = CreateHostBuilder(args).Build();
 
@@ -66,6 +76,7 @@ namespace SourceOfFund.API
                     logging.ClearProviders();
                     logging.SetMinimumLevel(LogLevel.Trace);
                 })
-                .UseNLog();
+                .UseSerilog();
+                //.UseNLog();
     }
 }

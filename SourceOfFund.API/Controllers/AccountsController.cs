@@ -61,6 +61,7 @@ namespace SourceOfFund.API.Controllers
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
 
+                _logger.LogInformation("Hello");
                 _accountBalanceService.HoldAmount(new HoldBalanceDTO
                 {
                     AccountId = accountId,
