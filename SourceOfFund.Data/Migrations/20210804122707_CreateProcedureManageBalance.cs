@@ -17,7 +17,7 @@ namespace SourceOfFund.Data.Migrations
 			@TransactionID int
 			,@StatusCode INT OUTPUT
 			AS
-			DECLARE @ISLedgerAccount int, @AccountFromBalanceBefore decimal(18,3), @TotalBalance decimal(18,3)
+			DECLARE @ISLedgerAccount int, @AccountFromBalanceBefore decimal(18,3)
 			DECLARE @RowsEffected int
 			DECLARE @Updated table(BeforeBalance decimal(18, 3));
 			BEGIN 
