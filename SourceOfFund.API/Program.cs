@@ -20,63 +20,44 @@ namespace SourceOfFund.API
     {
         public static void Main(string[] args)
         {
-            //var logger = NLogBuilder.ConfigureNLog("NLog.config").GetCurrentClassLogger();
-           
+            var config = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json")
+                .Build();
+
+            Log.Logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(config)
+                .Enrich.FromLogContext()
+                //.WriteTo.Http("http://localhost:8080")
+                .CreateLogger();
+
+            //Log.Logger = new LoggerConfiguration()
+            //       .Enrich.FromLogContext()
+            //       //.WriteTo.Console()
+            //       //.WriteTo.Debug(outputTemplate: DateTime.Now.ToString())
+            //       .WriteTo.File("/Logs/log.txt", rollingInterval: RollingInterval.Day)
+            //       .CreateLogger();
             try
             {
-                //logger.Debug("Application Starting Up");
-                Log.Logger = new LoggerConfiguration()
-                .Enrich.FromLogContext()
-                .WriteTo.Console(new RenderedCompactJsonFormatter())
-                .WriteTo.Debug(outputTemplate: DateTime.Now.ToString())
-                .WriteTo.File("log.txt", rollingInterval: RollingInterval.Day)
-                .CreateLogger();
+                Log.Information("Application Starting.");
                 CreateHostBuilder(args).Build().Run();
             }
-            catch (Exception exception)
+            catch (Exception ex)
             {
-                //logger.Error(exception, "Stopped program because of exception");
-                throw;
+                Log.Fatal(ex, "Application start-up failed");
             }
             finally
             {
-                //NLog.LogManager.Shutdown();
+                Log.CloseAndFlush();
             }
-            //var host = CreateHostBuilder(args).Build();
-
-            //using (var scope = host.Services.CreateScope())
-            //{
-            //    var services = scope.ServiceProvider;
-
-            //    try
-            //    {
-            //        var environment = services.GetRequiredService<IWebHostEnvironment>();
-            //        if(environment.IsDevelopment())
-            //        {
-            //            var context = services.GetRequiredService<ApplicationDbContext>();
-            //            context.Database.Migrate();
-            //        }
-            //    }
-            //    catch (Exception ex)
-            //    {
-
-            //    }
-            //}
-
-            //host.Run();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
+                .UseSerilog()
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
-                }).ConfigureLogging(logging =>
-                {
-                    logging.ClearProviders();
-                    logging.SetMinimumLevel(LogLevel.Trace);
-                })
-                .UseSerilog();
-                //.UseNLog();
+                });
+                
     }
 }
