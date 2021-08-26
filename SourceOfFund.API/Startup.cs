@@ -42,7 +42,7 @@ namespace SourceOfFund.API
             var connrction = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<ApplicationDbContext>(option =>
                 option.UseSqlServer(connrction)
-            ); ;
+            );
 
             services.AddScoped(typeof(IBaseRepository<,>), typeof(BaseRepository<,>));
             services.AddScoped(typeof(ApplicationDbContext));
@@ -95,12 +95,13 @@ namespace SourceOfFund.API
             }
 
             //app.UseHttpsRedirection();
-            using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
-            {
-                var context = serviceScope.ServiceProvider.GetService<ApplicationDbContext>();
-                context.Database.Migrate();
-            }
+            //using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            //{
+            //    var context = serviceScope.ServiceProvider.GetService<ApplicationDbContext>();
+            //    context.Database.Migrate();
+            //}
             app.UseStaticFiles();
+            app.UseHttpsRedirection();
             app.UseCors(options => options.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
             app.UseRouting();
             app.UseAuthorization();
