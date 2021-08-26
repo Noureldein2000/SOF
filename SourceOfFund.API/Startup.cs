@@ -94,7 +94,7 @@ namespace SourceOfFund.API
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
             //using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
             //{
             //    var context = serviceScope.ServiceProvider.GetService<ApplicationDbContext>();
