@@ -16,6 +16,8 @@ namespace SourceOfFund.Data.Configurations
             builder.HasOne(s => s.BalanceType).WithMany(s => s.AccountServiceAvailableBalances)
                 .HasForeignKey(s => s.BalanceTypeID)
                 .OnDelete(DeleteBehavior.NoAction);
+
+            //builder.Property(s => s.RowVersion).IsRowVersion().ValueGeneratedOnUpdate();
         }
     }
 }

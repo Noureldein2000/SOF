@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SourceOfFund.Data;
 
 namespace SourceOfFund.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210708092401_ModifyAvailableBalanceBefore")]
+    partial class ModifyAvailableBalanceBefore
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -109,7 +111,7 @@ namespace SourceOfFund.Data.Migrations
 
                     b.HasIndex("BalanceTypeID");
 
-                    b.ToTable("BalanceHistories");
+                    b.ToTable("BalanceHistory");
                 });
 
             modelBuilder.Entity("SourceOfFund.Data.Entities.BalanceType", b =>

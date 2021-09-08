@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SourceOfFund.Data;
 
 namespace SourceOfFund.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210706152119_CreateHoldBalance")]
+    partial class CreateHoldBalance
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -96,9 +98,6 @@ namespace SourceOfFund.Data.Migrations
                     b.Property<DateTime>("CreationDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<decimal>("TotalBalance")
-                        .HasColumnType("decimal(18,3)");
-
                     b.Property<int>("TransactionID")
                         .HasColumnType("int");
 
@@ -109,7 +108,7 @@ namespace SourceOfFund.Data.Migrations
 
                     b.HasIndex("BalanceTypeID");
 
-                    b.ToTable("BalanceHistories");
+                    b.ToTable("BalanceHistory");
                 });
 
             modelBuilder.Entity("SourceOfFund.Data.Entities.BalanceType", b =>
@@ -164,14 +163,8 @@ namespace SourceOfFund.Data.Migrations
                     b.Property<int>("AccountID")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("AvailableBalanceBefore")
-                        .HasColumnType("decimal(18, 3)");
-
                     b.Property<decimal>("Balance")
                         .HasColumnType("decimal(18, 3)");
-
-                    b.Property<int?>("BalanceTypeID")
-                        .HasColumnType("int");
 
                     b.Property<DateTime>("CreationDate")
                         .HasColumnType("datetime2");
@@ -189,8 +182,6 @@ namespace SourceOfFund.Data.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("ID");
-
-                    b.HasIndex("BalanceTypeID");
 
                     b.ToTable("HoldBalances");
                 });
@@ -220,14 +211,6 @@ namespace SourceOfFund.Data.Migrations
                         .HasForeignKey("BalanceTypeID")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("SourceOfFund.Data.Entities.HoldBalance", b =>
-                {
-                    b.HasOne("SourceOfFund.Data.Entities.BalanceType", "BalanceType")
-                        .WithMany("HoldBalances")
-                        .HasForeignKey("BalanceTypeID")
-                        .OnDelete(DeleteBehavior.NoAction);
                 });
 #pragma warning restore 612, 618
         }

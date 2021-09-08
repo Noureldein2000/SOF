@@ -10,7 +10,8 @@ namespace SourceOfFund.Data.Entities
         public string ArName { get; set; }
         public virtual ICollection<AccountServiceBalance> AccountServiceBalances { get; set; }
         public virtual ICollection<AccountServiceAvailableBalance> AccountServiceAvailableBalances { get; set; }
-        public virtual ICollection<BalanceHistory> BalanceHistorys { get; set; }    
+        public virtual ICollection<BalanceHistory> BalanceHistorys { get; set; }
+        public virtual ICollection<HoldBalance> HoldBalances { get; set; }
 
     }
 }
