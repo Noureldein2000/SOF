@@ -1,0 +1,39 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <Configurations>Debug;Release;Testing;Production</Configurations>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Migrations\20210708090342_ModifyAvailableBalanceBefore.cs" />
+    <Compile Remove="Migrations\20210708090342_ModifyAvailableBalanceBefore.Designer.cs" />
+    <Compile Remove="Migrations\20210708090514_ModifyAvailableBalanceBefore.cs" />
+    <Compile Remove="Migrations\20210708090514_ModifyAvailableBalanceBefore.Designer.cs" />
+    <Compile Remove="Migrations\20210708090946_ModifyAvailableBalanceBefore.cs" />
+    <Compile Remove="Migrations\20210708090946_ModifyAvailableBalanceBefore.Designer.cs" />
+    <Compile Remove="Migrations\20210803112602_AddRowVersion.cs" />
+    <Compile Remove="Migrations\20210803112602_AddRowVersion.Designer.cs" />
+    <Compile Remove="Migrations\20210803113229_AddRowVersion.cs" />
+    <Compile Remove="Migrations\20210803113229_AddRowVersion.Designer.cs" />
+    <Compile Remove="Migrations\20210803113506_AddRowVersion.cs" />
+    <Compile Remove="Migrations\20210803113506_AddRowVersion.Designer.cs" />
+    <Compile Remove="Migrations\20210803113655_AddRowVersion.cs" />
+    <Compile Remove="Migrations\20210803113655_AddRowVersion.Designer.cs" />
+    <Compile Remove="Migrations\20210803131211_AddRowVersion2.cs" />
+    <Compile Remove="Migrations\20210803131211_AddRowVersion2.Designer.cs" />
+    <Compile Remove="Migrations\20210803152852_AddRowVersion2.cs" />
+    <Compile Remove="Migrations\20210803152852_AddRowVersion2.Designer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.16" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="3.1.16" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.16" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SourceOfFund.Infrastructure\SourceOfFund.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>
