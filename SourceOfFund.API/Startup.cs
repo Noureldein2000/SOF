@@ -101,7 +101,7 @@ namespace SourceOfFund.API
             //    context.Database.Migrate();
             //}
             app.UseStaticFiles();
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
             app.UseCors(options => options.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
             app.UseRouting();
             app.UseAuthorization();

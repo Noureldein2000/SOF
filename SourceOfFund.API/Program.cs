@@ -38,7 +38,9 @@ namespace SourceOfFund.API
             //       .CreateLogger();
             try
             {
-                Log.Information("Application Starting.");
+                Log.Information("Application Started.");
+                var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+                Log.Information($"Application running on environment {environment}");
                 CreateHostBuilder(args).Build().Run();
             }
             catch (Exception ex)
