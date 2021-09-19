@@ -12,6 +12,7 @@ using SourceOfFund.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace SourceOfFund.API
@@ -41,6 +42,8 @@ namespace SourceOfFund.API
                 Log.Information("Application Started.");
                 var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
                 Log.Information($"Application running on environment {environment}");
+
+                Log.Information($"Application version {Assembly.GetEntryAssembly().GetCustomAttribute<AssemblyFileVersionAttribute>().Version}");
                 CreateHostBuilder(args).Build().Run();
             }
             catch (Exception ex)
