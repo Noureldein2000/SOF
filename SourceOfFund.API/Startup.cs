@@ -24,14 +24,14 @@ namespace SourceOfFund.API
     {
         public Startup(IConfiguration configuration, IWebHostEnvironment env)
         {
-            //Configuration = configuration;
-            var builder = new ConfigurationBuilder()
-                .SetBasePath(env.ContentRootPath)
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
-                .AddEnvironmentVariables();
+            Configuration = configuration;
+            //var builder = new ConfigurationBuilder()
+            //    .SetBasePath(env.ContentRootPath)
+            //    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+            //    .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
+            //    .AddEnvironmentVariables();
 
-            Configuration = builder.Build();
+            //Configuration = builder.Build();
         }
 
         public IConfiguration Configuration { get; }
@@ -39,9 +39,9 @@ namespace SourceOfFund.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
+            var connrction = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<ApplicationDbContext>(option =>
-                option.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"))
+                option.UseSqlServer(connrction)
             );
 
             services.AddScoped(typeof(IBaseRepository<,>), typeof(BaseRepository<,>));
@@ -101,6 +101,7 @@ namespace SourceOfFund.API
             //    context.Database.Migrate();
             //}
             app.UseStaticFiles();
+            //app.UseHttpsRedirection();
             app.UseCors(options => options.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
             app.UseRouting();
             app.UseAuthorization();
