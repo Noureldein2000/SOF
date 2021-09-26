@@ -55,7 +55,7 @@ namespace SourceOfFund.API.Controllers
         [HttpPost]
         [Route("{accountId}/balances/{balanceTypeId}/requests/{requestId}")]
         public IActionResult Post([FromBody] HoldBalanceModel model, int accountId, int requestId, int? balanceTypeId = null)
-        {
+            {
             try
             {
                 if (!ModelState.IsValid)
@@ -68,7 +68,8 @@ namespace SourceOfFund.API.Controllers
                     RequestId = requestId,
                     BalanceTypeId = balanceTypeId
                 });
-                
+                _logger.LogInformation($"[Hold] request id: {requestId}, account id: {accountId}, amount: {model.Amount}");
+                return Ok("Success", "200");
             }
             catch (SourceOfFundException ex)
             {
@@ -78,13 +79,13 @@ namespace SourceOfFund.API.Controllers
             catch (DBConcurrencyException dbex)
             {
                 _logger.LogError("[DBConcurrency Exception]");
+                return BadRequest(dbex.Message, "0");
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"[Post Exception] {ex.Message}");
                 return BadRequest(ex.Message, "0");
             }
-            return Ok("Success", "200");
         }
         [HttpDelete]
         [Route("{accountId}/requests/{requestId}")]
@@ -95,13 +96,13 @@ namespace SourceOfFund.API.Controllers
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
 
-                _logger.LogInformation($"[Refund] request id {requestId}, account id {accountId}");
+                
                 _accountBalanceService.RefundAmount(new HoldBalanceDTO
                 {
                     AccountId = accountId,
                     RequestId = requestId,
                 });
-                
+                _logger.LogInformation($"[Refund] request id: {requestId}, account id: {accountId}");
             }
             catch (SourceOfFundException ex)
             {
@@ -134,6 +135,7 @@ namespace SourceOfFund.API.Controllers
                     RequestId = requestId,
                     TransactionIds = transactionIds.ToList()
                 });
+                _logger.LogInformation($"[Confirmed] request id: {requestId}, account id: {accountId}");
                 return Ok("Success", "200");
             }
             catch (SourceOfFundException ex)
@@ -159,6 +161,7 @@ namespace SourceOfFund.API.Controllers
             try
             {
                 _accountBalanceService.ReturnBalance(fromAccountId, toAccountId, amount);
+                _logger.LogInformation($"[ReturnBalance] account from id: {fromAccountId}, account to id: {toAccountId} amount: {amount}");
                 return Ok("Success", "200");
             }
             catch (SourceOfFundException ex)
@@ -178,6 +181,7 @@ namespace SourceOfFund.API.Controllers
             try
             {
                 _accountBalanceService.ConfirmTransfer(fromAccountId, toAccountId, requestId);
+                _logger.LogInformation($"[ConfirmTransfer] account from id: {fromAccountId}, account to id: {toAccountId} request id: {requestId}");
                 return Ok("Success", "200");
             }
             catch (SourceOfFundException ex)
@@ -197,6 +201,7 @@ namespace SourceOfFund.API.Controllers
             try
             {
                 _accountBalanceService.ManageBalance(fromAccountId, toAccountId, amount);
+                _logger.LogInformation($"[ManageBalance] account from id: {fromAccountId}, account to id: {toAccountId} amount: {amount}");
                 return Ok("Success", "200");
             }
             catch (SourceOfFundException ex)
@@ -216,6 +221,7 @@ namespace SourceOfFund.API.Controllers
             try
             {
                 _accountBalanceService.CreateAccount(accountId, amount);
+                _logger.LogInformation($"[CreateAccount] account id: {accountId}, amount: {amount}");
                 return Ok("Success", "200");
             }
             catch (SourceOfFundException ex)
