@@ -233,5 +233,31 @@ namespace SourceOfFund.API.Controllers
                 return BadRequest(ex.Message, "0");
             }
         }
+
+        [HttpDelete]
+        [Route("{accountId}/requests/{requestId}/changestatus")]
+        public IActionResult ChangeStatus([FromRoute] int accountId, int requestId)
+        {
+            try
+            {
+                _accountBalanceService.ChangeStatus( accountId, requestId);
+                _logger.LogInformation($"[Change Status] request id: {requestId}, account id: {accountId}");
+            }
+            catch (SourceOfFundException ex)
+            {
+                _logger.LogError(ex, "[Change Status Exception]");
+                return Ok(ex.Message, ex.ErrorCode);
+            }
+            catch (DBConcurrencyException dbex)
+            {
+                _logger.LogError("[DBConcurrency Exception]");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[Change Status Exception]");
+                return BadRequest(ex.Message, "0");
+            }
+            return Ok("Success", "200");
+        }
     }
 }
