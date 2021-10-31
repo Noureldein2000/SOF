@@ -66,7 +66,7 @@ namespace SourceOfFund.Services.Services
                 sourceId, requestId, accountId, amount, balanceRequestTypeId, balanceTypeId, transactionId, statusCodeOutput);
 
             //_logger.LogInformation($"[Hold] request id {model.RequestId} value {statusCodeOutput.SqlValue}");
-            
+
 
         }
         public void RefundAmount(HoldBalanceDTO model)
@@ -191,11 +191,10 @@ namespace SourceOfFund.Services.Services
 
         }
 
-        public void ManageBalance(int fromAccountId, int toAccountId, decimal amount)
+        public void ManageBalance(int fromAccountId, int toAccountId, decimal amount, int accountFromRequestId, int accountFromTransactionId)
         {
-            var fromAccountBalance = _accountServiceBalances.Getwhere(x => x.AccountID == fromAccountId).FirstOrDefault();
-
-            var fromAccountAvaliableBalance = _accountServiceAvailableBalances.Getwhere(x => x.AccountID == fromAccountId).FirstOrDefault();
+            //    var fromAccountBalance = _accountServiceBalances.Getwhere(x => x.AccountID == fromAccountId).FirstOrDefault();
+            //    var fromAccountAvaliableBalance = _accountServiceAvailableBalances.Getwhere(x => x.AccountID == fromAccountId).FirstOrDefault();
 
             var toAccountBalance = _accountServiceBalances.Getwhere(x => x.AccountID == toAccountId).FirstOrDefault();
 
@@ -204,9 +203,21 @@ namespace SourceOfFund.Services.Services
             if (toAccountBalance == null || toAccountAvaliableBalance == null)
                 throw new SourceOfFundException("", "5");
 
-            fromAccountAvaliableBalance.Balance -= amount;
-            fromAccountBalance.Balance -= amount;
-
+            //fromAccountAvaliableBalance.Balance -= amount;
+            //fromAccountBalance.Balance -= amount;
+            HoldAmount(new HoldBalanceDTO
+            {
+                AccountId = fromAccountId,
+                Amount = amount,
+                RequestId = accountFromRequestId,
+            });
+            ConfirmAmount(new HoldBalanceDTO
+            {
+                AccountId = fromAccountId,
+                Amount = amount,
+                RequestId = accountFromRequestId,
+                TransactionIds = new List<int> { accountFromTransactionId }
+            });
             toAccountAvaliableBalance.Balance += amount;
             toAccountBalance.Balance += amount;
 
