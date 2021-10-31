@@ -253,5 +253,12 @@ namespace SourceOfFund.Services.Services
 
             _unitOfWork.SaveChanges();
         }
+
+        public void ChangeStatus(int accountId, int requestId)
+        {
+            var requestIdParam = new SqlParameter("@RequestID", requestId);
+            var accountIdParam = new SqlParameter("@AccountID", accountId);
+            _context.Database.ExecuteSqlRaw(" [dbo].[ChangeHoldBalancStatus] @RequestID, @AccountID", requestIdParam, accountIdParam);
+        }
     }
 }
