@@ -191,7 +191,7 @@ namespace SourceOfFund.Services.Services
 
         }
 
-        public void ManageBalance(int fromAccountId, int toAccountId, decimal amount, int accountFromRequestId, int accountFromTransactionId)
+        public void ManageBalance(int fromAccountId, int toAccountId, decimal amount, int accountFromRequestId, int accountFromTransactionId, bool save = true)
         {
             //    var fromAccountBalance = _accountServiceBalances.Getwhere(x => x.AccountID == fromAccountId).FirstOrDefault();
             //    var fromAccountAvaliableBalance = _accountServiceAvailableBalances.Getwhere(x => x.AccountID == fromAccountId).FirstOrDefault();
@@ -221,22 +221,8 @@ namespace SourceOfFund.Services.Services
             toAccountAvaliableBalance.Balance += amount;
             toAccountBalance.Balance += amount;
 
-            //switch (transactionType)
-            //{
-            //    case TransactionType.Increment:
-
-
-            //        break;
-            //    case TransactionType.Decrement:
-            //        toAccountAvaliableBalance.Balance -= amount;
-            //        toAccountBalance.Balance -= amount;
-
-
-            //        break;
-            //    default:
-            //        break;
-            //}
-            _unitOfWork.SaveChanges();
+            if (save)
+                _unitOfWork.SaveChanges();
         }
 
         public void CreateAccount(int accountId, decimal amount)
@@ -270,6 +256,15 @@ namespace SourceOfFund.Services.Services
             var requestIdParam = new SqlParameter("@RequestID", requestId);
             var accountIdParam = new SqlParameter("@AccountID", accountId);
             _context.Database.ExecuteSqlRaw(" [dbo].[ChangeHoldBalancStatus] @RequestID, @AccountID", requestIdParam, accountIdParam);
+        }
+
+        public void AddCommission(List<AccountCommissionDTO> commissions)
+        {
+            commissions.ForEach(commission =>
+            {
+                ManageBalance(Constants.AccountCommission, commission.AccountId, commission.Amount, commission.RequestId, commission.TransactionId, save: false);
+            });
+            _unitOfWork.SaveChanges();
         }
     }
 }

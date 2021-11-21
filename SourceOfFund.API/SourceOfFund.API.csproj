@@ -8,8 +8,23 @@
 		<UserSecretsId>a9f01f7a-7450-4164-bd4e-7ef1a8db6f3d</UserSecretsId>
 		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
 	</PropertyGroup>
+  
+  <PropertyGroup Condition=" '$(Configuration)' == '' Or '$(Configuration)' == 'Debug'">
+    <EnvironmentName>Development</EnvironmentName>
+  </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)' == 'Production'">
+    <EnvironmentName>Production</EnvironmentName>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <EnvironmentName>Release</EnvironmentName>
+  </PropertyGroup>
+  
 	<ItemGroup>
+		<PackageReference Include="Hangfire.AspNetCore" Version="1.7.26" />
+		<PackageReference Include="Hangfire.Core" Version="1.7.26" />
+		<PackageReference Include="Hangfire.SqlServer" Version="1.7.26" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.16">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -31,6 +46,7 @@
 		<PackageReference Include="Swashbuckle.AspNetCore.Newtonsoft" Version="6.1.4" />
 		<PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="6.1.4" />
 		<PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.1.4" />
+		<PackageReference Include="System.Data.SqlClient" Version="4.6.1" />
 	</ItemGroup>
 
 	<ItemGroup>
