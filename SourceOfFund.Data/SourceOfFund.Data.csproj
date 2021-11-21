@@ -24,6 +24,8 @@
     <Compile Remove="Migrations\20210803131211_AddRowVersion2.Designer.cs" />
     <Compile Remove="Migrations\20210803152852_AddRowVersion2.cs" />
     <Compile Remove="Migrations\20210803152852_AddRowVersion2.Designer.cs" />
+    <Compile Remove="Migrations\20211101101540_HangFire.cs" />
+    <Compile Remove="Migrations\20211101101540_HangFire.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

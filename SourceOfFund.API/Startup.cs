@@ -1,22 +1,18 @@
+using Hangfire;
+using Hangfire.SqlServer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using SourceOfFund.API.Helpers;
 using SourceOfFund.Data;
 using SourceOfFund.Services.Repositories;
 using SourceOfFund.Services.Services;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
 namespace SourceOfFund.API
 {
@@ -48,6 +44,7 @@ namespace SourceOfFund.API
             services.AddScoped(typeof(ApplicationDbContext));
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IAccountBalanceService, AccountBalanceService>();
+            services.AddScoped<IBackgroundJobs, BackgroundJobs>();
 
             services.AddControllers()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
@@ -84,10 +81,28 @@ namespace SourceOfFund.API
                     }
                 });
             }).AddSwaggerGenNewtonsoftSupport();
+
+            var connection = Configuration.GetConnectionString("HangfireConnection");
+            services.AddHangfire(config =>
+            config.SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+                .UseSimpleAssemblyNameTypeSerializer()
+                .UseDefaultTypeSerializer()
+                .UseSqlServerStorage(connection, new SqlServerStorageOptions
+                {
+                    CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
+                    SlidingInvisibilityTimeout = TimeSpan.FromMinutes(5),
+                    QueuePollInterval = TimeSpan.Zero,
+                    UseRecommendedIsolationLevel = true,
+                    UsePageLocksOnDequeue = true,
+                    DisableGlobalLocks = true
+                }));
+
+            services.AddHangfireServer();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IRecurringJobManager recurringJobManager, IServiceProvider serviceProvider)
         {
             if (env.IsDevelopment())
             {
@@ -113,7 +128,12 @@ namespace SourceOfFund.API
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHangfireDashboard();
             });
+
+            recurringJobManager.AddOrUpdate("Add Commission",
+                () => serviceProvider.GetService<IBackgroundJobs>().AddCommissions(),
+                "0 4 * * *", TimeZoneInfo.Local);
         }
     }
 }
