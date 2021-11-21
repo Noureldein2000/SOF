@@ -9,7 +9,7 @@ namespace SourceOfFund.Data.Migrations
             migrationBuilder.Sql(@"Create proc [dbo].[ChangeHoldBalancStatus] @RequestID int, @AccountID int
                 AS
                 BEGIN
-                    update HoldBalances set Status = 4 where RequestID = @RequestID and AccountID = @AccountID
+                    UPDATE HoldBalances SET Status = 4 where RequestID = @RequestID and AccountID = @AccountID
                 END");
         }
 

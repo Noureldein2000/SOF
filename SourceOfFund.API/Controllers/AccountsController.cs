@@ -55,7 +55,7 @@ namespace SourceOfFund.API.Controllers
         [HttpPost]
         [Route("{accountId}/balances/{balanceTypeId}/requests/{requestId}")]
         public IActionResult Post([FromBody] HoldBalanceModel model, int accountId, int requestId, int? balanceTypeId = null)
-            {
+        {
             try
             {
                 if (!ModelState.IsValid)
@@ -96,7 +96,7 @@ namespace SourceOfFund.API.Controllers
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
 
-                
+
                 _accountBalanceService.RefundAmount(new HoldBalanceDTO
                 {
                     AccountId = accountId,
@@ -195,13 +195,13 @@ namespace SourceOfFund.API.Controllers
         }
 
         [HttpPost]
-        [Route("ManageBalance/{fromAccountId}/{toAccountId}/balances/{amount}/{transactionType}")]
-        public IActionResult ManageBalance(int fromAccountId, int toAccountId, decimal amount, TransactionType transactionType)
+        [Route("ManageBalance/{fromAccountId}/{toAccountId}/balances/{amount}/requests/{accountFromRequestId}/transactions/{accountFromTransactionId}")]
+        public IActionResult ManageBalance(int fromAccountId, int toAccountId, decimal amount, int accountFromRequestId, int accountFromTransactionId)
         {
             try
             {
-                _accountBalanceService.ManageBalance(fromAccountId, toAccountId, amount);
-                _logger.LogInformation($"[ManageBalance] account from id: {fromAccountId}, account to id: {toAccountId} amount: {amount}");
+                _accountBalanceService.ManageBalance(fromAccountId, toAccountId, amount, accountFromRequestId, accountFromTransactionId);
+                _logger.LogInformation($"[ManageBalance] account from id: {fromAccountId}, account to id: {toAccountId} amount: {amount}, requestId: {accountFromRequestId}");
                 return Ok("Success", "200");
             }
             catch (SourceOfFundException ex)
@@ -240,7 +240,7 @@ namespace SourceOfFund.API.Controllers
         {
             try
             {
-                _accountBalanceService.ChangeStatus( accountId, requestId);
+                _accountBalanceService.ChangeStatus(accountId, requestId);
                 _logger.LogInformation($"[Change Status] request id: {requestId}, account id: {accountId}");
             }
             catch (SourceOfFundException ex)
