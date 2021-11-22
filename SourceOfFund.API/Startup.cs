@@ -82,22 +82,22 @@ namespace SourceOfFund.API
                 });
             }).AddSwaggerGenNewtonsoftSupport();
 
-            var connection = Configuration.GetConnectionString("HangfireConnection");
-            services.AddHangfire(config =>
-            config.SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
-                .UseSimpleAssemblyNameTypeSerializer()
-                .UseDefaultTypeSerializer()
-                .UseSqlServerStorage(connection, new SqlServerStorageOptions
-                {
-                    CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
-                    SlidingInvisibilityTimeout = TimeSpan.FromMinutes(5),
-                    QueuePollInterval = TimeSpan.Zero,
-                    UseRecommendedIsolationLevel = true,
-                    UsePageLocksOnDequeue = true,
-                    DisableGlobalLocks = true
-                }));
+            //var connection = Configuration.GetConnectionString("HangfireConnection");
+            //services.AddHangfire(config =>
+            //config.SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+            //    .UseSimpleAssemblyNameTypeSerializer()
+            //    .UseDefaultTypeSerializer()
+            //    .UseSqlServerStorage(connection, new SqlServerStorageOptions
+            //    {
+            //        CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
+            //        SlidingInvisibilityTimeout = TimeSpan.FromMinutes(5),
+            //        QueuePollInterval = TimeSpan.Zero,
+            //        UseRecommendedIsolationLevel = true,
+            //        UsePageLocksOnDequeue = true,
+            //        DisableGlobalLocks = true
+            //    }));
 
-            services.AddHangfireServer();
+            //services.AddHangfireServer();
 
         }
 
@@ -128,12 +128,12 @@ namespace SourceOfFund.API
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                endpoints.MapHangfireDashboard();
+                //endpoints.MapHangfireDashboard();
             });
 
-            recurringJobManager.AddOrUpdate("Add Commission",
-                () => serviceProvider.GetService<IBackgroundJobs>().AddCommissions(),
-                "0 4 * * *", TimeZoneInfo.Local);
+            //recurringJobManager.AddOrUpdate("Add Commission",
+            //    () => serviceProvider.GetService<IBackgroundJobs>().AddCommissions(),
+            //    "0 4 * * *", TimeZoneInfo.Local);
         }
     }
 }
