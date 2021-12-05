@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -6,10 +6,14 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using NLog;
+using Serilog;
+using SourceOfFund.API.Helpers;
 using SourceOfFund.Data;
 using SourceOfFund.Services.Repositories;
 using SourceOfFund.Services.Services;
 using System;
+using System.IO;
 using System.Text.Json.Serialization;
 
 namespace SourceOfFund.API
@@ -18,6 +22,7 @@ namespace SourceOfFund.API
     {
         public Startup(IConfiguration configuration, IWebHostEnvironment env)
         {
+            //LogManager.LoadConfiguration(String.Concat(Directory.GetCurrentDirectory(), "/nlog.config"));
             Configuration = configuration;
             //var builder = new ConfigurationBuilder()
             //    .SetBasePath(env.ContentRootPath)
@@ -33,6 +38,8 @@ namespace SourceOfFund.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            //services.AddScoped<ILoggerManager, LoggerManager>();
+
             var connrction = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<ApplicationDbContext>(option =>
                 option.UseSqlServer(connrction)
@@ -123,6 +130,7 @@ namespace SourceOfFund.API
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "API V1");
             });
+            //app.UseSerilogRequestLogging();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();

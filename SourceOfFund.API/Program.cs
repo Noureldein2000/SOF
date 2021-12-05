@@ -1,32 +1,43 @@
-using Microsoft.AspNetCore.Hosting;
+﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using NLog.Web;
-using Serilog;
-using Serilog.Formatting.Compact;
-using Serilog.Sinks.File;
 using SourceOfFund.Data;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using Serilog;
+using System.IO;
+using Serilog.Events;
 
 namespace SourceOfFund.API
 {
     public class Program
     {
         public static void Main(string[] args)
+
         {
-            var config = new ConfigurationBuilder()
-                .AddJsonFile("appsettings.json")
-                .Build();
+            var host = CreateHostBuilder(args).Build();
+            using var scope = host.Services.CreateScope();
+            var services = scope.ServiceProvider;
+            var environment = services.GetRequiredService<IWebHostEnvironment>();
+            var envPath = environment.ContentRootPath;
+
+            //string path = Directory.GetCurrentDirectory();
+            //var config = new ConfigurationBuilder()
+            //    .AddJsonFile(Path.Combine(path, "appsettings.json"))
+            //    .Build();
+
+            string outputTemplate = "{Timestamp:yyyy-MM-dd HH: mm: ss.fff} [{Level}] {Message}{NewLine}{Exception}";
 
             Log.Logger = new LoggerConfiguration()
-                .ReadFrom.Configuration(config)
+                //.ReadFrom.Configuration(config)
+                .MinimumLevel.Information()
+                .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
+                .MinimumLevel.Override("System", LogEventLevel.Warning)
+                .MinimumLevel.Override("System.Net.Http.HttpClient", LogEventLevel.Warning)
+                .WriteTo.File(Path.Combine(envPath, "Logs/applog_.log"),
+                rollingInterval: RollingInterval.Day, outputTemplate: outputTemplate)
                 .Enrich.FromLogContext()
                 //.WriteTo.Http("http://localhost:8080")
                 .CreateLogger();
@@ -37,17 +48,20 @@ namespace SourceOfFund.API
             //       //.WriteTo.Debug(outputTemplate: DateTime.Now.ToString())
             //       .WriteTo.File("/Logs/log.txt", rollingInterval: RollingInterval.Day)
             //       .CreateLogger();
-            var host = CreateHostBuilder(args).Build();
-            using var scope = host.Services.CreateScope();
-            var services = scope.ServiceProvider;
+            //var logger = NLog.LogManager.Setup().LoadConfigurationFromAppSettings().GetCurrentClassLogger();
+            //var logger = NLogBuilder.ConfigureNLog("nlog.config").GetCurrentClassLogger();
+
             try
             {
+
+
+
                 Log.Information("Application Started.");
                 var environmentVariable = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
                 Log.Information($"Application running on environment {environmentVariable}");
 
                 Log.Information($"Application version {Assembly.GetEntryAssembly().GetCustomAttribute<AssemblyFileVersionAttribute>().Version}");
-                var environment = services.GetRequiredService<IWebHostEnvironment>();
+
                 if (environment.IsDevelopment() || environment.IsEnvironment("Release"))
                 {
                     var context = services.GetRequiredService<ApplicationDbContext>();
@@ -55,18 +69,21 @@ namespace SourceOfFund.API
                     Log.Information($"Database run migration");
                 }
 
-               
+                host.Run();
             }
             catch (Exception ex)
             {
+                //logger.Error(ex, "Stopped program because of exception");
                 Log.Fatal(ex, "Application start-up failed");
+               
             }
             finally
             {
+                //LogManager.Shutdown();
                 Log.CloseAndFlush();
             }
 
-            host.Run();
+
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
@@ -75,7 +92,13 @@ namespace SourceOfFund.API
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
-                });
-                
+                })
+            //.ConfigureLogging(logging =>
+            //    {
+            //        logging.ClearProviders();
+            //        logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
+            //    })
+            //    .UseNLog();
+            ;
     }
 }
