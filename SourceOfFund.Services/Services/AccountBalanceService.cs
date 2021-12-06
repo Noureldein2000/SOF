@@ -57,7 +57,7 @@ namespace SourceOfFund.Services.Services
             var accountId = new SqlParameter("@AccountID", model.AccountId);
             var amount = new SqlParameter("@Amount", model.Amount);
             var balanceRequestTypeId = new SqlParameter("@BalanceRequestTypeID", 1);
-            var balanceTypeId = new SqlParameter("@BalanceTypeID", 1);
+            var balanceTypeId = new SqlParameter("@BalanceTypeID", model.BalanceTypeId);
             var transactionId = new SqlParameter("@TransactionID", 1);
             var statusCodeOutput = new SqlParameter("@StatusCode", 1);
             statusCodeOutput.Direction = ParameterDirection.Output;
@@ -76,7 +76,7 @@ namespace SourceOfFund.Services.Services
             var accountId = new SqlParameter("@AccountID", model.AccountId);
             var amount = new SqlParameter("@Amount", model.Amount);
             var balanceRequestTypeId = new SqlParameter("@BalanceRequestTypeID", 3);
-            var balanceTypeId = new SqlParameter("@BalanceTypeID", 1);
+            var balanceTypeId = new SqlParameter("@BalanceTypeID", model.BalanceTypeId);
             var transactionId = new SqlParameter("@TransactionID", 1);
             var statusCodeOutput = new SqlParameter("@StatusCode", 1);
             statusCodeOutput.Direction = ParameterDirection.Output;
@@ -115,7 +115,7 @@ namespace SourceOfFund.Services.Services
             var accountId = new SqlParameter("@AccountID", model.AccountId);
             var amount = new SqlParameter("@Amount", model.Amount);
             var balanceRequestTypeId = new SqlParameter("@BalanceRequestTypeID", 2);
-            var balanceTypeId = new SqlParameter("@BalanceTypeID", 1);
+            var balanceTypeId = new SqlParameter("@BalanceTypeID", model.BalanceTypeId);
             var transactionId = new SqlParameter("@TransactionID", model.TransactionIds.FirstOrDefault());
             var statusCodeOutput = new SqlParameter("@StatusCode", 1);
             statusCodeOutput.Direction = ParameterDirection.Output;
@@ -191,7 +191,7 @@ namespace SourceOfFund.Services.Services
 
         }
 
-        public void ManageBalance(int fromAccountId, int toAccountId, decimal amount, int accountFromRequestId, int accountFromTransactionId, bool save = true)
+        public void ManageBalance(int fromAccountId, int toAccountId, decimal amount, int accountFromRequestId, int accountFromTransactionId, bool save = true, int accountTypeId = 1)
         {
             //    var fromAccountBalance = _accountServiceBalances.Getwhere(x => x.AccountID == fromAccountId).FirstOrDefault();
             //    var fromAccountAvaliableBalance = _accountServiceAvailableBalances.Getwhere(x => x.AccountID == fromAccountId).FirstOrDefault();
@@ -210,13 +210,15 @@ namespace SourceOfFund.Services.Services
                 AccountId = fromAccountId,
                 Amount = amount,
                 RequestId = accountFromRequestId,
+                BalanceTypeId = accountTypeId
             });
             ConfirmAmount(new HoldBalanceDTO
             {
                 AccountId = fromAccountId,
                 Amount = amount,
                 RequestId = accountFromRequestId,
-                TransactionIds = new List<int> { accountFromTransactionId }
+                TransactionIds = new List<int> { accountFromTransactionId },
+                BalanceTypeId = accountTypeId
             });
             toAccountAvaliableBalance.Balance += amount;
             toAccountBalance.Balance += amount;

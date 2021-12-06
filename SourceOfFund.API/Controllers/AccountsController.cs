@@ -66,7 +66,7 @@ namespace SourceOfFund.API.Controllers
                     AccountId = accountId,
                     Amount = model.Amount,
                     RequestId = requestId,
-                    BalanceTypeId = balanceTypeId
+                    BalanceTypeId = balanceTypeId.HasValue ? balanceTypeId.Value : 1
                 });
                 _logger.LogInformation($"[Hold] request id: {requestId}, account id: {accountId}, amount: {model.Amount}");
                 return Ok("Success", "200");
@@ -213,7 +213,29 @@ namespace SourceOfFund.API.Controllers
                 return BadRequest(ex.Message, "0");
             }
         }
-
+        [HttpPost]
+        [Route("ManageBalance")]
+        public IActionResult ManageBalance([FromBody] ManageBalanceDTO model)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return Ok("Not Valid", "-7");
+                }
+                _accountBalanceService.ManageBalance(model.FromAccountId, model.ToAccountId, model.Amount, model.RequestId, model.TransactionId, accountTypeId: model.BalanceTypeId);
+                _logger.LogInformation($"[ManageBalance] account from id: {model.FromAccountId}, account to id: {model.ToAccountId} amount: {model.Amount}, requestId: {model.RequestId}");
+                return Ok("Success", "200");
+            }
+            catch (SourceOfFundException ex)
+            {
+                return Ok(ex.Message, ex.ErrorCode);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message, "0");
+            }
+        }
         [HttpPost]
         [Route("CreateAccount/{accountId}/balances/{amount}")]
         public IActionResult CreateAccount(int accountId, decimal amount)
