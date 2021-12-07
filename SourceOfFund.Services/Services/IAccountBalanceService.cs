@@ -15,8 +15,9 @@ namespace SourceOfFund.Services.Services
         void ConfirmTransfer(int fromAccountId, int toAccountId, int requestId);
         void ManageBalance(int fromAccountId, int toAccountId, decimal amount, int accountFromRequestId, int accountFromTransactionId, bool save = true);
         AccountBalanceDTO GetBalance(int accountId, int balanceTypeId);
-        void CreateAccount(int accountId, decimal amount);
+        void CreateAccount(int accountId, decimal amount,int balanceTypeId);
         void ChangeStatus(int accountId, int requestId);
         void AddCommission(List<AccountCommissionDTO> commissions);
+        List<BalanceTypeDTO> GetBalanceTypes(string language);
     }
 }
