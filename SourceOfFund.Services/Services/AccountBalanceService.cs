@@ -227,7 +227,7 @@ namespace SourceOfFund.Services.Services
                 _unitOfWork.SaveChanges();
         }
 
-        public void CreateAccount(int accountId, decimal amount)
+        public void CreateAccount(int accountId, decimal amount,int balanceTypeId)
         {
             var toAccountBalance = _accountServiceBalances.Getwhere(x => x.AccountID == accountId).FirstOrDefault();
 
@@ -240,14 +240,14 @@ namespace SourceOfFund.Services.Services
             {
                 AccountID = accountId,
                 Balance = amount,
-                BalanceTypeID = 1
+                BalanceTypeID = balanceTypeId
             });
 
             _accountServiceBalances.Add(new AccountServiceBalance
             {
                 AccountID = accountId,
                 Balance = amount,
-                BalanceTypeID = 1
+                BalanceTypeID = balanceTypeId
             });
 
             _unitOfWork.SaveChanges();
@@ -267,6 +267,15 @@ namespace SourceOfFund.Services.Services
                 ManageBalance(Constants.AccountCommission, commission.AccountId, commission.Amount, commission.RequestId, commission.TransactionId, save: false);
             });
             _unitOfWork.SaveChanges();
+        }
+
+        public List<BalanceTypeDTO> GetBalanceTypes(string language)
+        {
+            return _balanceType.GetAll().Select(x => new BalanceTypeDTO
+            {
+                Id = x.ID,
+                Name = language == "en" ? x.Name : x.ArName
+            }).ToList();
         }
     }
 }

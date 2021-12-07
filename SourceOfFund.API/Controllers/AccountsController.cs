@@ -237,13 +237,13 @@ namespace SourceOfFund.API.Controllers
             }
         }
         [HttpPost]
-        [Route("CreateAccount/{accountId}/balances/{amount}")]
-        public IActionResult CreateAccount(int accountId, decimal amount)
+        [Route("CreateAccount/{accountId}/balances/{amount}/{balanceTypeId}")]
+        public IActionResult CreateAccount(int accountId, decimal amount, int balanceTypeId)
         {
             try
             {
-                _accountBalanceService.CreateAccount(accountId, amount);
-                _logger.LogInformation($"[CreateAccount] account id: {accountId}, amount: {amount}");
+                _accountBalanceService.CreateAccount(accountId, amount, balanceTypeId);
+                _logger.LogInformation($"[CreateAccount] account id: {accountId}, amount: {amount}, balanceType: {balanceTypeId}");
                 return Ok("Success", "200");
             }
             catch (SourceOfFundException ex)
@@ -280,6 +280,31 @@ namespace SourceOfFund.API.Controllers
                 return BadRequest(ex.Message, "0");
             }
             return Ok("Success", "200");
+        }
+        [HttpGet]
+        [Route("BalanceTypes")]
+        [ProducesResponseType(typeof(List<BalanceTypeModel>), 200)]
+        public IActionResult GetBalanceTypes(string language = "ar")
+        {
+            try
+            {
+                var balancesTypes = _accountBalanceService.GetBalanceTypes(language).Select(x => new BalanceTypeModel
+                {
+                    Id = x.Id,
+                    Name = x.Name
+                });
+
+                return Ok(balancesTypes);
+
+            }
+            catch (SourceOfFundException ex)
+            {
+                return Ok(ex.Message, ex.ErrorCode);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message, "0");
+            }
         }
     }
 }
