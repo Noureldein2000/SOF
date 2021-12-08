@@ -227,7 +227,7 @@ namespace SourceOfFund.Services.Services
                 _unitOfWork.SaveChanges();
         }
 
-        public void CreateAccount(int accountId, decimal amount,int balanceTypeId)
+        public void CreateAccount(int accountId, decimal amount, List<int> balanceTypeIds)
         {
             var toAccountBalance = _accountServiceBalances.Getwhere(x => x.AccountID == accountId).FirstOrDefault();
 
@@ -236,19 +236,23 @@ namespace SourceOfFund.Services.Services
             if (toAccountBalance != null || toAccountAvaliableBalance != null)
                 throw new SourceOfFundException("", "5");
 
-            _accountServiceAvailableBalances.Add(new AccountServiceAvailableBalance
+            //Add momkn balance to list balanceType IDs
+            foreach (var balanceTypeId in balanceTypeIds)
             {
-                AccountID = accountId,
-                Balance = amount,
-                BalanceTypeID = balanceTypeId
-            });
+                _accountServiceAvailableBalances.Add(new AccountServiceAvailableBalance
+                {
+                    AccountID = accountId,
+                    Balance = amount,
+                    BalanceTypeID = balanceTypeId
+                });
 
-            _accountServiceBalances.Add(new AccountServiceBalance
-            {
-                AccountID = accountId,
-                Balance = amount,
-                BalanceTypeID = balanceTypeId
-            });
+                _accountServiceBalances.Add(new AccountServiceBalance
+                {
+                    AccountID = accountId,
+                    Balance = amount,
+                    BalanceTypeID = balanceTypeId
+                });
+            }
 
             _unitOfWork.SaveChanges();
         }
