@@ -237,13 +237,13 @@ namespace SourceOfFund.API.Controllers
             }
         }
         [HttpPost]
-        [Route("CreateAccount/{accountId}/balances/{amount}/{balanceTypeId}")]
-        public IActionResult CreateAccount(int accountId, decimal amount, int balanceTypeId)
+        [Route("CreateAccount")]
+        public IActionResult CreateAccount([FromBody] CreateAccountModel model)
         {
             try
             {
-                _accountBalanceService.CreateAccount(accountId, amount, balanceTypeId);
-                _logger.LogInformation($"[CreateAccount] account id: {accountId}, amount: {amount}, balanceType: {balanceTypeId}");
+                _accountBalanceService.CreateAccount(model.AccountId, model.Amount, model.BalanceTypeIds);
+                _logger.LogInformation($"[CreateAccount] account id: {model.AccountId}, amount: {model.Amount}, balanceType: {model.BalanceTypeIds}");
                 return Ok("Success", "200");
             }
             catch (SourceOfFundException ex)
