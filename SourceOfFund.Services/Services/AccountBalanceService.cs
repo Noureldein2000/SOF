@@ -237,8 +237,6 @@ namespace SourceOfFund.Services.Services
                 throw new SourceOfFundException("", "5");
 
             //Add momkn balance to list balanceType IDs
-            balanceTypeIds.Add(1);
-
             foreach (var balanceTypeId in balanceTypeIds)
             {
                 _accountServiceAvailableBalances.Add(new AccountServiceAvailableBalance
