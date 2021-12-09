@@ -281,5 +281,43 @@ namespace SourceOfFund.Services.Services
                 Name = language == "en" ? x.Name : x.ArName
             }).ToList();
         }
+
+        public void SeedBalances(int accountId, List<SeedBalancesDTO> model)
+        {
+            var totalAmount = model.Sum(s => s.Amount);
+            HoldAmount(new HoldBalanceDTO
+            {
+                AccountId = accountId,
+                Amount = totalAmount,
+                RequestId = 0,
+                BalanceTypeId = 1
+            });
+            ConfirmAmount(new HoldBalanceDTO
+            {
+                AccountId = accountId,
+                Amount = totalAmount,
+                RequestId = 0,
+                TransactionIds = new List<int> { 0 },
+                BalanceTypeId = 1
+            });
+
+            var accounts = model.Select(s => s.AccountId).ToList();
+            var accountBalances = _accountServiceBalances.Getwhere(s => accounts.Contains(s.AccountID) && s.BalanceTypeID == 3).ToList();
+            var accountsAvailableBalances = _accountServiceAvailableBalances.Getwhere(s => accounts.Contains(s.AccountID) && s.BalanceTypeID == 3).ToList();
+
+            model.ForEach(data =>
+            {
+                var selectedAccount = accountBalances.Where(s => s.AccountID == data.AccountId).FirstOrDefault();
+                var selectedAvailableAccount = accountsAvailableBalances.Where(s => s.AccountID == data.AccountId).FirstOrDefault();
+                if(selectedAccount != null && selectedAvailableAccount != null)
+                {
+                    selectedAccount.Balance += data.Amount;
+                    selectedAvailableAccount.Balance += data.Amount;
+                }
+            });
+            
+
+            _unitOfWork.SaveChanges();
+        }
     }
 }

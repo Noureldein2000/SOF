@@ -306,5 +306,35 @@ namespace SourceOfFund.API.Controllers
                 return BadRequest(ex.Message, "0");
             }
         }
+        [HttpPost]
+        [Route("{accountId}/balances/seed")]
+        [ProducesResponseType(typeof(void), 200)]
+        public IActionResult SeedBalances(int accountId ,[FromBody] List<SeedBalancesModel> model)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return Ok("Not Valid", "-7");
+                }
+                _accountBalanceService.SeedBalances(accountId, model.Select(s => new SeedBalancesDTO
+                {
+                    AccountId = s.AccountId,
+                    Amount = s.Amount,
+                    RequestId = s.RequestId,
+                    TrasnsactionId = s.TrasnsactionId
+                }).ToList());
+                _logger.LogInformation($"[SeedBalances] account from id: {accountId}, No of accounts {model.Count} ");
+                return Ok("Success", "200");
+            }
+            catch (SourceOfFundException ex)
+            {
+                return Ok(ex.Message, ex.ErrorCode);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message, "0");
+            }
+        }
     }
 }
