@@ -196,9 +196,9 @@ namespace SourceOfFund.Services.Services
             //    var fromAccountBalance = _accountServiceBalances.Getwhere(x => x.AccountID == fromAccountId).FirstOrDefault();
             //    var fromAccountAvaliableBalance = _accountServiceAvailableBalances.Getwhere(x => x.AccountID == fromAccountId).FirstOrDefault();
 
-            var toAccountBalance = _accountServiceBalances.Getwhere(x => x.AccountID == toAccountId).FirstOrDefault();
+            var toAccountBalance = _accountServiceBalances.Getwhere(x => x.AccountID == toAccountId && x.BalanceTypeID == accountTypeId).FirstOrDefault();
 
-            var toAccountAvaliableBalance = _accountServiceAvailableBalances.Getwhere(x => x.AccountID == toAccountId).FirstOrDefault();
+            var toAccountAvaliableBalance = _accountServiceAvailableBalances.Getwhere(x => x.AccountID == toAccountId && x.BalanceTypeID == accountTypeId).FirstOrDefault();
 
             if (toAccountBalance == null || toAccountAvaliableBalance == null)
                 throw new SourceOfFundException("", "5");
