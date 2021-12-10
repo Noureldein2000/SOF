@@ -284,22 +284,7 @@ namespace SourceOfFund.Services.Services
 
         public void SeedBalances(int accountId, List<SeedBalancesDTO> model)
         {
-            var totalAmount = model.Sum(s => s.Amount);
-            HoldAmount(new HoldBalanceDTO
-            {
-                AccountId = accountId,
-                Amount = totalAmount,
-                RequestId = 0,
-                BalanceTypeId = 1
-            });
-            ConfirmAmount(new HoldBalanceDTO
-            {
-                AccountId = accountId,
-                Amount = totalAmount,
-                RequestId = 0,
-                TransactionIds = new List<int> { 0 },
-                BalanceTypeId = 1
-            });
+            //var totalAmount = model.Sum(s => s.Amount);
 
             var accounts = model.Select(s => s.AccountId).ToList();
             var accountBalances = _accountServiceBalances.Getwhere(s => accounts.Contains(s.AccountID) && s.BalanceTypeID == 3).ToList();
@@ -307,6 +292,22 @@ namespace SourceOfFund.Services.Services
 
             model.ForEach(data =>
             {
+                HoldAmount(new HoldBalanceDTO
+                {
+                    AccountId = accountId,
+                    Amount = data.Amount,
+                    RequestId = data.RequestId,
+                    BalanceTypeId = 1
+                });
+                ConfirmAmount(new HoldBalanceDTO
+                {
+                    AccountId = accountId,
+                    Amount = data.Amount,
+                    RequestId = data.RequestId,
+                    TransactionIds = new List<int> { data.TrasnsactionId },
+                    BalanceTypeId = 1
+                });
+
                 var selectedAccount = accountBalances.Where(s => s.AccountID == data.AccountId).FirstOrDefault();
                 var selectedAvailableAccount = accountsAvailableBalances.Where(s => s.AccountID == data.AccountId).FirstOrDefault();
                 if(selectedAccount != null && selectedAvailableAccount != null)
