@@ -223,7 +223,7 @@ namespace SourceOfFund.API.Controllers
                 {
                     return Ok("Not Valid", "-7");
                 }
-                _accountBalanceService.ManageBalance(model.FromAccountId, model.ToAccountId, model.Amount, model.RequestId, model.TransactionId, accountTypeId: model.BalanceTypeId);
+                _accountBalanceService.ManageBalanceForCashoutUniversity(model.FromAccountId, model.ToAccountId, model.Amount, model.RequestId, model.TransactionId);
                 _logger.LogInformation($"[ManageBalance] account from id: {model.FromAccountId}, account to id: {model.ToAccountId} amount: {model.Amount}, requestId: {model.RequestId}");
                 return Ok("Success", "200");
             }
