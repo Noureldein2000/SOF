@@ -20,5 +20,6 @@ namespace SourceOfFund.Services.Services
         void AddCommission(List<AccountCommissionDTO> commissions);
         List<BalanceTypeDTO> GetBalanceTypes(string language);
         void SeedBalances(int accountId, List<SeedBalancesDTO> model);
+        void ManageBalanceForCashoutUniversity(int fromAccountId, int toAccountId, decimal amount, int accountFromRequestId, int accountFromTransactionId);
     }
 }

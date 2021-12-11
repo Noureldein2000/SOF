@@ -226,7 +226,40 @@ namespace SourceOfFund.Services.Services
             if (save)
                 _unitOfWork.SaveChanges();
         }
+        public void ManageBalanceForCashoutUniversity(int fromAccountId, int toAccountId, decimal amount, int accountFromRequestId, int accountFromTransactionId)
+        {
+            //    var fromAccountBalance = _accountServiceBalances.Getwhere(x => x.AccountID == fromAccountId).FirstOrDefault();
+            //    var fromAccountAvaliableBalance = _accountServiceAvailableBalances.Getwhere(x => x.AccountID == fromAccountId).FirstOrDefault();
 
+            var toAccountBalance = _accountServiceBalances.Getwhere(x => x.AccountID == toAccountId && x.BalanceTypeID == 1).FirstOrDefault();
+
+            var toAccountAvaliableBalance = _accountServiceAvailableBalances.Getwhere(x => x.AccountID == toAccountId && x.BalanceTypeID == 1).FirstOrDefault();
+
+            if (toAccountBalance == null || toAccountAvaliableBalance == null)
+                throw new SourceOfFundException("", "5");
+
+            //fromAccountAvaliableBalance.Balance -= amount;
+            //fromAccountBalance.Balance -= amount;
+            HoldAmount(new HoldBalanceDTO
+            {
+                AccountId = fromAccountId,
+                Amount = amount,
+                RequestId = accountFromRequestId,
+                BalanceTypeId = 3
+            });
+            ConfirmAmount(new HoldBalanceDTO
+            {
+                AccountId = fromAccountId,
+                Amount = amount,
+                RequestId = accountFromRequestId,
+                TransactionIds = new List<int> { accountFromTransactionId },
+                BalanceTypeId = 3
+            });
+            toAccountAvaliableBalance.Balance += amount;
+            toAccountBalance.Balance += amount;
+
+            _unitOfWork.SaveChanges();
+        }
         public void CreateAccount(int accountId, decimal amount, List<int> balanceTypeIds)
         {
             var toAccountBalance = _accountServiceBalances.Getwhere(x => x.AccountID == accountId).FirstOrDefault();
