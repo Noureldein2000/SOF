@@ -57,7 +57,7 @@ namespace SourceOfFund.Services.Services
             var accountId = new SqlParameter("@AccountID", model.AccountId);
             var amount = new SqlParameter("@Amount", model.Amount);
             var balanceRequestTypeId = new SqlParameter("@BalanceRequestTypeID", 1);
-            var balanceTypeId = new SqlParameter("@BalanceTypeID", 1);
+            var balanceTypeId = new SqlParameter("@BalanceTypeID", model.BalanceTypeId);
             var transactionId = new SqlParameter("@TransactionID", 1);
             var statusCodeOutput = new SqlParameter("@StatusCode", 1);
             statusCodeOutput.Direction = ParameterDirection.Output;
@@ -76,7 +76,7 @@ namespace SourceOfFund.Services.Services
             var accountId = new SqlParameter("@AccountID", model.AccountId);
             var amount = new SqlParameter("@Amount", model.Amount);
             var balanceRequestTypeId = new SqlParameter("@BalanceRequestTypeID", 3);
-            var balanceTypeId = new SqlParameter("@BalanceTypeID", 1);
+            var balanceTypeId = new SqlParameter("@BalanceTypeID", model.BalanceTypeId);
             var transactionId = new SqlParameter("@TransactionID", 1);
             var statusCodeOutput = new SqlParameter("@StatusCode", 1);
             statusCodeOutput.Direction = ParameterDirection.Output;
@@ -115,7 +115,7 @@ namespace SourceOfFund.Services.Services
             var accountId = new SqlParameter("@AccountID", model.AccountId);
             var amount = new SqlParameter("@Amount", model.Amount);
             var balanceRequestTypeId = new SqlParameter("@BalanceRequestTypeID", 2);
-            var balanceTypeId = new SqlParameter("@BalanceTypeID", 1);
+            var balanceTypeId = new SqlParameter("@BalanceTypeID", model.BalanceTypeId);
             var transactionId = new SqlParameter("@TransactionID", model.TransactionIds.FirstOrDefault());
             var statusCodeOutput = new SqlParameter("@StatusCode", 1);
             statusCodeOutput.Direction = ParameterDirection.Output;
@@ -191,14 +191,14 @@ namespace SourceOfFund.Services.Services
 
         }
 
-        public void ManageBalance(int fromAccountId, int toAccountId, decimal amount, int accountFromRequestId, int accountFromTransactionId, bool save = true)
+        public void ManageBalance(int fromAccountId, int toAccountId, decimal amount, int accountFromRequestId, int accountFromTransactionId, bool save = true, int accountTypeId = 1)
         {
             //    var fromAccountBalance = _accountServiceBalances.Getwhere(x => x.AccountID == fromAccountId).FirstOrDefault();
             //    var fromAccountAvaliableBalance = _accountServiceAvailableBalances.Getwhere(x => x.AccountID == fromAccountId).FirstOrDefault();
 
-            var toAccountBalance = _accountServiceBalances.Getwhere(x => x.AccountID == toAccountId).FirstOrDefault();
+            var toAccountBalance = _accountServiceBalances.Getwhere(x => x.AccountID == toAccountId && x.BalanceTypeID == accountTypeId).FirstOrDefault();
 
-            var toAccountAvaliableBalance = _accountServiceAvailableBalances.Getwhere(x => x.AccountID == toAccountId).FirstOrDefault();
+            var toAccountAvaliableBalance = _accountServiceAvailableBalances.Getwhere(x => x.AccountID == toAccountId && x.BalanceTypeID == accountTypeId).FirstOrDefault();
 
             if (toAccountBalance == null || toAccountAvaliableBalance == null)
                 throw new SourceOfFundException("", "5");
@@ -210,13 +210,15 @@ namespace SourceOfFund.Services.Services
                 AccountId = fromAccountId,
                 Amount = amount,
                 RequestId = accountFromRequestId,
+                BalanceTypeId = accountTypeId
             });
             ConfirmAmount(new HoldBalanceDTO
             {
                 AccountId = fromAccountId,
                 Amount = amount,
                 RequestId = accountFromRequestId,
-                TransactionIds = new List<int> { accountFromTransactionId }
+                TransactionIds = new List<int> { accountFromTransactionId },
+                BalanceTypeId = accountTypeId
             });
             toAccountAvaliableBalance.Balance += amount;
             toAccountBalance.Balance += amount;
@@ -225,7 +227,7 @@ namespace SourceOfFund.Services.Services
                 _unitOfWork.SaveChanges();
         }
 
-        public void CreateAccount(int accountId, decimal amount)
+        public void CreateAccount(int accountId, decimal amount, List<int> balanceTypeIds)
         {
             var toAccountBalance = _accountServiceBalances.Getwhere(x => x.AccountID == accountId).FirstOrDefault();
 
@@ -234,19 +236,23 @@ namespace SourceOfFund.Services.Services
             if (toAccountBalance != null || toAccountAvaliableBalance != null)
                 throw new SourceOfFundException("", "5");
 
-            _accountServiceAvailableBalances.Add(new AccountServiceAvailableBalance
+            //Add momkn balance to list balanceType IDs
+            foreach (var balanceTypeId in balanceTypeIds)
             {
-                AccountID = accountId,
-                Balance = amount,
-                BalanceTypeID = 1
-            });
+                _accountServiceAvailableBalances.Add(new AccountServiceAvailableBalance
+                {
+                    AccountID = accountId,
+                    Balance = amount,
+                    BalanceTypeID = balanceTypeId
+                });
 
-            _accountServiceBalances.Add(new AccountServiceBalance
-            {
-                AccountID = accountId,
-                Balance = amount,
-                BalanceTypeID = 1
-            });
+                _accountServiceBalances.Add(new AccountServiceBalance
+                {
+                    AccountID = accountId,
+                    Balance = amount,
+                    BalanceTypeID = balanceTypeId
+                });
+            }
 
             _unitOfWork.SaveChanges();
         }
@@ -264,6 +270,54 @@ namespace SourceOfFund.Services.Services
             {
                 ManageBalance(Constants.AccountCommission, commission.AccountId, commission.Amount, commission.RequestId, commission.TransactionId, save: false);
             });
+            _unitOfWork.SaveChanges();
+        }
+
+        public List<BalanceTypeDTO> GetBalanceTypes(string language)
+        {
+            return _balanceType.GetAll().Select(x => new BalanceTypeDTO
+            {
+                Id = x.ID,
+                Name = language == "en" ? x.Name : x.ArName
+            }).ToList();
+        }
+
+        public void SeedBalances(int accountId, List<SeedBalancesDTO> model)
+        {
+            //var totalAmount = model.Sum(s => s.Amount);
+
+            var accounts = model.Select(s => s.AccountId).ToList();
+            var accountBalances = _accountServiceBalances.Getwhere(s => accounts.Contains(s.AccountID) && s.BalanceTypeID == 3).ToList();
+            var accountsAvailableBalances = _accountServiceAvailableBalances.Getwhere(s => accounts.Contains(s.AccountID) && s.BalanceTypeID == 3).ToList();
+
+            model.ForEach(data =>
+            {
+                HoldAmount(new HoldBalanceDTO
+                {
+                    AccountId = accountId,
+                    Amount = data.Amount,
+                    RequestId = data.RequestId,
+                    BalanceTypeId = 1
+                });
+                ConfirmAmount(new HoldBalanceDTO
+                {
+                    AccountId = accountId,
+                    Amount = data.Amount,
+                    RequestId = data.RequestId,
+                    TransactionIds = new List<int> { data.TrasnsactionId },
+                    BalanceTypeId = 1
+                });
+
+                var selectedAccount = accountBalances.Where(s => s.AccountID == data.AccountId).FirstOrDefault();
+                var selectedAvailableAccount = accountsAvailableBalances.Where(s => s.AccountID == data.AccountId).FirstOrDefault();
+                if(selectedAccount != null && selectedAvailableAccount != null)
+                {
+                    selectedAccount.Balance += data.Amount;
+                    selectedAvailableAccount.Balance += data.Amount;
+                }
+            });
+            
+
             _unitOfWork.SaveChanges();
         }
     }

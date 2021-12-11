@@ -66,7 +66,7 @@ namespace SourceOfFund.API.Controllers
                     AccountId = accountId,
                     Amount = model.Amount,
                     RequestId = requestId,
-                    BalanceTypeId = balanceTypeId
+                    BalanceTypeId = balanceTypeId.HasValue ? balanceTypeId.Value : 1
                 });
                 _logger.LogInformation($"[Hold] request id: {requestId}, account id: {accountId}, amount: {model.Amount}");
                 return Ok("Success", "200");
@@ -213,15 +213,37 @@ namespace SourceOfFund.API.Controllers
                 return BadRequest(ex.Message, "0");
             }
         }
-
         [HttpPost]
-        [Route("CreateAccount/{accountId}/balances/{amount}")]
-        public IActionResult CreateAccount(int accountId, decimal amount)
+        [Route("ManageBalance")]
+        public IActionResult ManageBalance([FromBody] ManageBalanceDTO model)
         {
             try
             {
-                _accountBalanceService.CreateAccount(accountId, amount);
-                _logger.LogInformation($"[CreateAccount] account id: {accountId}, amount: {amount}");
+                if (!ModelState.IsValid)
+                {
+                    return Ok("Not Valid", "-7");
+                }
+                _accountBalanceService.ManageBalance(model.FromAccountId, model.ToAccountId, model.Amount, model.RequestId, model.TransactionId, accountTypeId: model.BalanceTypeId);
+                _logger.LogInformation($"[ManageBalance] account from id: {model.FromAccountId}, account to id: {model.ToAccountId} amount: {model.Amount}, requestId: {model.RequestId}");
+                return Ok("Success", "200");
+            }
+            catch (SourceOfFundException ex)
+            {
+                return Ok(ex.Message, ex.ErrorCode);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message, "0");
+            }
+        }
+        [HttpPost]
+        [Route("CreateAccount")]
+        public IActionResult CreateAccount([FromBody] CreateAccountModel model)
+        {
+            try
+            {
+                _accountBalanceService.CreateAccount(model.AccountId, model.Amount, model.BalanceTypeIds);
+                _logger.LogInformation($"[CreateAccount] account id: {model.AccountId}, amount: {model.Amount}, balanceType: {model.BalanceTypeIds}");
                 return Ok("Success", "200");
             }
             catch (SourceOfFundException ex)
@@ -258,6 +280,61 @@ namespace SourceOfFund.API.Controllers
                 return BadRequest(ex.Message, "0");
             }
             return Ok("Success", "200");
+        }
+        [HttpGet]
+        [Route("BalanceTypes")]
+        [ProducesResponseType(typeof(List<BalanceTypeModel>), 200)]
+        public IActionResult GetBalanceTypes(string language = "ar")
+        {
+            try
+            {
+                var balancesTypes = _accountBalanceService.GetBalanceTypes(language).Select(x => new BalanceTypeModel
+                {
+                    Id = x.Id,
+                    Name = x.Name
+                });
+
+                return Ok(balancesTypes);
+
+            }
+            catch (SourceOfFundException ex)
+            {
+                return Ok(ex.Message, ex.ErrorCode);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message, "0");
+            }
+        }
+        [HttpPost]
+        [Route("{accountId}/balances/seed")]
+        [ProducesResponseType(typeof(void), 200)]
+        public IActionResult SeedBalances(int accountId ,[FromBody] List<SeedBalancesModel> model)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return Ok("Not Valid", "-7");
+                }
+                _accountBalanceService.SeedBalances(accountId, model.Select(s => new SeedBalancesDTO
+                {
+                    AccountId = s.AccountId,
+                    Amount = s.Amount,
+                    RequestId = s.RequestId,
+                    TrasnsactionId = s.TrasnsactionId
+                }).ToList());
+                _logger.LogInformation($"[SeedBalances] account from id: {accountId}, No of accounts {model.Count} ");
+                return Ok("Success", "200");
+            }
+            catch (SourceOfFundException ex)
+            {
+                return Ok(ex.Message, ex.ErrorCode);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message, "0");
+            }
         }
     }
 }
