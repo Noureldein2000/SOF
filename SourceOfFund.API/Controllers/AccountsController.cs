@@ -223,7 +223,7 @@ namespace SourceOfFund.API.Controllers
                 {
                     return Ok("Not Valid", "-7");
                 }
-                _accountBalanceService.ManageBalance(model.FromAccountId, model.ToAccountId, model.Amount, model.RequestId, model.TransactionId, accountTypeId: model.BalanceTypeId);
+                _accountBalanceService.ManageBalanceForCashoutUniversity(model.FromAccountId, model.ToAccountId, model.Amount, model.RequestId, model.TransactionId);
                 _logger.LogInformation($"[ManageBalance] account from id: {model.FromAccountId}, account to id: {model.ToAccountId} amount: {model.Amount}, requestId: {model.RequestId}");
                 return Ok("Success", "200");
             }
@@ -296,6 +296,36 @@ namespace SourceOfFund.API.Controllers
 
                 return Ok(balancesTypes);
 
+            }
+            catch (SourceOfFundException ex)
+            {
+                return Ok(ex.Message, ex.ErrorCode);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message, "0");
+            }
+        }
+        [HttpPost]
+        [Route("{accountId}/balances/seed")]
+        [ProducesResponseType(typeof(void), 200)]
+        public IActionResult SeedBalances(int accountId ,[FromBody] List<SeedBalancesModel> model)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return Ok("Not Valid", "-7");
+                }
+                _accountBalanceService.SeedBalances(accountId, model.Select(s => new SeedBalancesDTO
+                {
+                    AccountId = s.AccountId,
+                    Amount = s.Amount,
+                    RequestId = s.RequestId,
+                    TrasnsactionId = s.TrasnsactionId
+                }).ToList());
+                _logger.LogInformation($"[SeedBalances] account from id: {accountId}, No of accounts {model.Count} ");
+                return Ok("Success", "200");
             }
             catch (SourceOfFundException ex)
             {
