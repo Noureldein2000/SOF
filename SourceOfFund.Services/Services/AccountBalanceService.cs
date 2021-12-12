@@ -262,9 +262,9 @@ namespace SourceOfFund.Services.Services
         }
         public void CreateAccount(int accountId, decimal amount, List<int> balanceTypeIds)
         {
-            var toAccountBalance = _accountServiceBalances.Getwhere(x => x.AccountID == accountId).FirstOrDefault();
+            var toAccountBalance = _accountServiceBalances.Getwhere(x => x.AccountID == accountId && balanceTypeIds.Contains(x.BalanceTypeID)).FirstOrDefault();
 
-            var toAccountAvaliableBalance = _accountServiceAvailableBalances.Getwhere(x => x.AccountID == accountId).FirstOrDefault();
+            var toAccountAvaliableBalance = _accountServiceAvailableBalances.Getwhere(x => x.AccountID == accountId && balanceTypeIds.Contains(x.BalanceTypeID)).FirstOrDefault();
 
             if (toAccountBalance != null || toAccountAvaliableBalance != null)
                 throw new SourceOfFundException("", "5");
@@ -343,13 +343,13 @@ namespace SourceOfFund.Services.Services
 
                 var selectedAccount = accountBalances.Where(s => s.AccountID == data.AccountId).FirstOrDefault();
                 var selectedAvailableAccount = accountsAvailableBalances.Where(s => s.AccountID == data.AccountId).FirstOrDefault();
-                if(selectedAccount != null && selectedAvailableAccount != null)
+                if (selectedAccount != null && selectedAvailableAccount != null)
                 {
                     selectedAccount.Balance += data.Amount;
                     selectedAvailableAccount.Balance += data.Amount;
                 }
             });
-            
+
 
             _unitOfWork.SaveChanges();
         }
