@@ -306,5 +306,26 @@ namespace SourceOfFund.API.Controllers
                 return BadRequest(ex.Message, "0");
             }
         }
+
+        [HttpGet]
+        [Route("BalanceTypes/{id}")]
+        [ProducesResponseType(typeof(List<int>), 200)]
+        public IActionResult GetBalanceTypesByAccountId(int id, string language = "ar")
+        {
+            try
+            {
+                var balancesTypes = _accountBalanceService.GetBalanceTypesByAccountId(id, language);
+                return Ok(balancesTypes);
+
+            }
+            catch (SourceOfFundException ex)
+            {
+                return Ok(ex.Message, ex.ErrorCode);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message, "0");
+            }
+        }
     }
 }

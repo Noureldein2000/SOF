@@ -281,5 +281,10 @@ namespace SourceOfFund.Services.Services
                 Name = language == "en" ? x.Name : x.ArName
             }).ToList();
         }
+
+        public List<int> GetBalanceTypesByAccountId(int id, string language)
+        {
+            return _accountServiceBalances.Getwhere(x => x.AccountID == id).Select(x => x.BalanceTypeID).ToList();
+        }
     }
 }

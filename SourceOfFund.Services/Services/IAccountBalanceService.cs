@@ -19,5 +19,6 @@ namespace SourceOfFund.Services.Services
         void ChangeStatus(int accountId, int requestId);
         void AddCommission(List<AccountCommissionDTO> commissions);
         List<BalanceTypeDTO> GetBalanceTypes(string language);
+        List<int> GetBalanceTypesByAccountId(int id,string language);
     }
 }
