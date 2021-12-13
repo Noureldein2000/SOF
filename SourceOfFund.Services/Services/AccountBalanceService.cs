@@ -262,29 +262,31 @@ namespace SourceOfFund.Services.Services
         }
         public void CreateAccount(int accountId, decimal amount, List<int> balanceTypeIds)
         {
-            var toAccountBalance = _accountServiceBalances.Getwhere(x => x.AccountID == accountId && balanceTypeIds.Contains(x.BalanceTypeID)).FirstOrDefault();
+            //var toAccountBalance = _accountServiceBalances.Getwhere(x => x.AccountID == accountId && balanceTypeIds.Contains(x.BalanceTypeID)).ToList();
 
-            var toAccountAvaliableBalance = _accountServiceAvailableBalances.Getwhere(x => x.AccountID == accountId && balanceTypeIds.Contains(x.BalanceTypeID)).FirstOrDefault();
+            //var toAccountAvaliableBalance = _accountServiceAvailableBalances.Getwhere(x => x.AccountID == accountId && balanceTypeIds.Contains(x.BalanceTypeID)).ToList();
 
-            if (toAccountBalance != null || toAccountAvaliableBalance != null)
-                throw new SourceOfFundException("", "5");
+            //if (toAccountBalance != null || toAccountBalance.Count > 0 || toAccountAvaliableBalance != null || toAccountAvaliableBalance.Count > 0)
+            //    throw new SourceOfFundException("", "5");
 
             //Add momkn balance to list balanceType IDs
             foreach (var balanceTypeId in balanceTypeIds)
             {
-                _accountServiceAvailableBalances.Add(new AccountServiceAvailableBalance
-                {
-                    AccountID = accountId,
-                    Balance = amount,
-                    BalanceTypeID = balanceTypeId
-                });
+                if (!_accountServiceAvailableBalances.Any(x => x.AccountID == accountId && x.BalanceTypeID == balanceTypeId))
+                    _accountServiceAvailableBalances.Add(new AccountServiceAvailableBalance
+                    {
+                        AccountID = accountId,
+                        Balance = amount,
+                        BalanceTypeID = balanceTypeId
+                    });
 
-                _accountServiceBalances.Add(new AccountServiceBalance
-                {
-                    AccountID = accountId,
-                    Balance = amount,
-                    BalanceTypeID = balanceTypeId
-                });
+                if (!_accountServiceBalances.Any(x => x.AccountID == accountId && x.BalanceTypeID == balanceTypeId))
+                    _accountServiceBalances.Add(new AccountServiceBalance
+                    {
+                        AccountID = accountId,
+                        Balance = amount,
+                        BalanceTypeID = balanceTypeId
+                    });
             }
 
             _unitOfWork.SaveChanges();
