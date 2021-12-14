@@ -262,29 +262,37 @@ namespace SourceOfFund.Services.Services
         }
         public void CreateAccount(int accountId, decimal amount, List<int> balanceTypeIds)
         {
-            var toAccountBalance = _accountServiceBalances.Getwhere(x => x.AccountID == accountId && balanceTypeIds.Contains(x.BalanceTypeID)).FirstOrDefault();
+            var toAccountBalance = _accountServiceBalances.Getwhere(x => x.AccountID == accountId && balanceTypeIds.Contains(x.BalanceTypeID)).AsNoTracking().ToList();
 
-            var toAccountAvaliableBalance = _accountServiceAvailableBalances.Getwhere(x => x.AccountID == accountId && balanceTypeIds.Contains(x.BalanceTypeID)).FirstOrDefault();
+            var toAccountAvaliableBalance = _accountServiceAvailableBalances.Getwhere(x => x.AccountID == accountId && balanceTypeIds.Contains(x.BalanceTypeID)).AsNoTracking().ToList();
 
-            if (toAccountBalance != null || toAccountAvaliableBalance != null)
+            if (toAccountBalance.Count == 0 || toAccountAvaliableBalance.Count == 0)
                 throw new SourceOfFundException("", "5");
 
-            //Add momkn balance to list balanceType IDs
             foreach (var balanceTypeId in balanceTypeIds)
             {
-                _accountServiceAvailableBalances.Add(new AccountServiceAvailableBalance
+                if(!toAccountBalance.Any(x => x.BalanceTypeID == balanceTypeId))
                 {
-                    AccountID = accountId,
-                    Balance = amount,
-                    BalanceTypeID = balanceTypeId
-                });
+                    _accountServiceBalances.Add(new AccountServiceBalance
+                    {
+                        AccountID = accountId,
+                        Balance = amount,
+                        BalanceTypeID = balanceTypeId
+                    });
+                }
+            }
 
-                _accountServiceBalances.Add(new AccountServiceBalance
+            foreach (var balanceTypeId in balanceTypeIds)
+            {
+                if (!toAccountAvaliableBalance.Any(x => x.BalanceTypeID == balanceTypeId))
                 {
-                    AccountID = accountId,
-                    Balance = amount,
-                    BalanceTypeID = balanceTypeId
-                });
+                    _accountServiceAvailableBalances.Add(new AccountServiceAvailableBalance
+                    {
+                        AccountID = accountId,
+                        Balance = amount,
+                        BalanceTypeID = balanceTypeId
+                    });
+                }
             }
 
             _unitOfWork.SaveChanges();
@@ -325,31 +333,30 @@ namespace SourceOfFund.Services.Services
 
             model.ForEach(data =>
             {
-                HoldAmount(new HoldBalanceDTO
-                {
-                    AccountId = accountId,
-                    Amount = data.Amount,
-                    RequestId = data.RequestId,
-                    BalanceTypeId = 1
-                });
-                ConfirmAmount(new HoldBalanceDTO
-                {
-                    AccountId = accountId,
-                    Amount = data.Amount,
-                    RequestId = data.RequestId,
-                    TransactionIds = new List<int> { data.TrasnsactionId },
-                    BalanceTypeId = 1
-                });
-
                 var selectedAccount = accountBalances.Where(s => s.AccountID == data.AccountId).FirstOrDefault();
                 var selectedAvailableAccount = accountsAvailableBalances.Where(s => s.AccountID == data.AccountId).FirstOrDefault();
                 if (selectedAccount != null && selectedAvailableAccount != null)
                 {
                     selectedAccount.Balance += data.Amount;
                     selectedAvailableAccount.Balance += data.Amount;
+
+                    HoldAmount(new HoldBalanceDTO
+                    {
+                        AccountId = accountId,
+                        Amount = data.Amount,
+                        RequestId = data.RequestId,
+                        BalanceTypeId = 1
+                    });
+                    ConfirmAmount(new HoldBalanceDTO
+                    {
+                        AccountId = accountId,
+                        Amount = data.Amount,
+                        RequestId = data.RequestId,
+                        TransactionIds = new List<int> { data.TrasnsactionId },
+                        BalanceTypeId = 1
+                    });
                 }
             });
-
 
             _unitOfWork.SaveChanges();
         }
