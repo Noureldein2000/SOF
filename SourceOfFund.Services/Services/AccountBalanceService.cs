@@ -262,37 +262,40 @@ namespace SourceOfFund.Services.Services
         }
         public void CreateAccount(int accountId, decimal amount, List<int> balanceTypeIds)
         {
-            var toAccountBalance = _accountServiceBalances.Getwhere(x => x.AccountID == accountId && balanceTypeIds.Contains(x.BalanceTypeID)).AsNoTracking().ToList();
+            var toAccountBalance = balanceTypeIds.Except(_accountServiceBalances.Getwhere(x => x.AccountID == accountId).Select(x => x.BalanceTypeID).ToList());
+            //var toAccountBalance = _accountServiceBalances.Getwhere(x => x.AccountID == accountId && balanceTypeIds.Contains(x.BalanceTypeID)).AsNoTracking().ToList();
+            //var toAccountBalance = _accountServiceBalances.Getwhere(x => x.AccountID == accountId).AsNoTracking().ToList();
 
-            var toAccountAvaliableBalance = _accountServiceAvailableBalances.Getwhere(x => x.AccountID == accountId && balanceTypeIds.Contains(x.BalanceTypeID)).AsNoTracking().ToList();
+            var toAccountAvaliableBalance = balanceTypeIds.Except(_accountServiceAvailableBalances.Getwhere(x => x.AccountID == accountId).Select(x => x.BalanceTypeID).ToList());
+            //var toAccountAvaliableBalance = _accountServiceAvailableBalances.Getwhere(x => x.AccountID == accountId && balanceTypeIds.Contains(x.BalanceTypeID)).AsNoTracking().ToList();
+            //var toAccountAvaliableBalance = _accountServiceAvailableBalances.Getwhere(x => x.AccountID == accountId).AsNoTracking().ToList();
 
-            if (toAccountBalance.Count == 0 || toAccountAvaliableBalance.Count == 0)
+            //if (toAccountBalance.Count() == 0 || toAccountAvaliableBalance.Count == 0)
+            //    throw new SourceOfFundException("", "5");
+
+            if (toAccountBalance.Count() != toAccountAvaliableBalance.Count() || toAccountBalance.Count() == 0 || toAccountAvaliableBalance.Count() == 0)
                 throw new SourceOfFundException("", "5");
 
-            foreach (var balanceTypeId in balanceTypeIds)
-            {
-                if(!toAccountBalance.Any(x => x.BalanceTypeID == balanceTypeId))
-                {
-                    _accountServiceBalances.Add(new AccountServiceBalance
-                    {
-                        AccountID = accountId,
-                        Balance = amount,
-                        BalanceTypeID = balanceTypeId
-                    });
-                }
-            }
+            //if (toAccountBalance.Count() != toAccountAvaliableBalance.Count() || toAccountBalance.Count() == 0 || toAccountAvaliableBalance.Count() == 0)
+            //    throw new SourceOfFundException("", "5");
 
-            foreach (var balanceTypeId in balanceTypeIds)
+            foreach (var balanceTypeId in toAccountBalance)
             {
-                if (!toAccountAvaliableBalance.Any(x => x.BalanceTypeID == balanceTypeId))
+                //if (!toAccountBalance.Any(x => x.BalanceTypeID == balanceTypeId))
+                _accountServiceBalances.Add(new AccountServiceBalance
                 {
-                    _accountServiceAvailableBalances.Add(new AccountServiceAvailableBalance
-                    {
-                        AccountID = accountId,
-                        Balance = amount,
-                        BalanceTypeID = balanceTypeId
-                    });
-                }
+                    AccountID = accountId,
+                    Balance = amount,
+                    BalanceTypeID = balanceTypeId
+                });
+
+                //if (!toAccountAvaliableBalance.Any(x => x.BalanceTypeID == balanceTypeId))
+                _accountServiceAvailableBalances.Add(new AccountServiceAvailableBalance
+                {
+                    AccountID = accountId,
+                    Balance = amount,
+                    BalanceTypeID = balanceTypeId
+                });
             }
 
             _unitOfWork.SaveChanges();
