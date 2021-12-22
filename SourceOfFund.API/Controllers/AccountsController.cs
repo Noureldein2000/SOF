@@ -307,7 +307,7 @@ namespace SourceOfFund.API.Controllers
             }
         }
         [HttpPost]
-        [Route("{accountId}/checkbalances/seed")]
+        [Route("checkbalances/seed")]
         [ProducesResponseType(typeof(bool), 200)]
         public IActionResult CheckSeedBalances([FromBody] List<SeedBalancesModel> model)
         {
