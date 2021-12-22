@@ -360,5 +360,13 @@ namespace SourceOfFund.Services.Services
             
             _unitOfWork.SaveChanges();
         }
+
+        public bool CheckSeedBalances(List<SeedBalancesDTO> model)
+        {
+            var accounts = model.Select(s => s.AccountId).ToList();
+            var checkbalance = _accountServiceBalances.All(s => s.BalanceTypeID == 3 & accounts.Contains(s.AccountID));
+            var checkAvaialbeBalance = _accountServiceBalances.All(s => s.BalanceTypeID == 3 & accounts.Contains(s.AccountID));
+            return checkAvaialbeBalance && checkbalance;
+        }
     }
 }
