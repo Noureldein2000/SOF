@@ -14,6 +14,7 @@ namespace SourceOfFund.Services.Repositories
         TEntity Add(TEntity entity);
         TEntity GetById(TKey key);
         bool Any(Expression<Func<TEntity, bool>> predicate);
+        bool All(Expression<Func<TEntity, bool>> predicate);
         TEntity Delete(TKey key);
     }
 }

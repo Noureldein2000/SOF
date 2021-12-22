@@ -21,6 +21,11 @@ namespace SourceOfFund.Services.Repositories
             return _context.Set<TEntity>().Add(entity).Entity;
         }
 
+        public bool All(Expression<Func<TEntity, bool>> predicate)
+        {
+            return _context.Set<TEntity>().All(predicate);
+        }
+
         public bool Any(Expression<Func<TEntity, bool>> predicate)
         {
             return _context.Set<TEntity>().Any(predicate);
