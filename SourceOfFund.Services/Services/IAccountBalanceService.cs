@@ -22,5 +22,6 @@ namespace SourceOfFund.Services.Services
         void SeedBalances(int accountId, List<SeedBalancesDTO> model);
         bool CheckSeedBalances(List<SeedBalancesDTO> model);
         void ManageBalanceForCashoutUniversity(int fromAccountId, int toAccountId, decimal amount, int accountFromRequestId, int accountFromTransactionId);
+        List<int> GetBalanceTypesByAccountId(int id,string language);
     }
 }
