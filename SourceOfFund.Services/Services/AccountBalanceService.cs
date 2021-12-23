@@ -371,11 +371,11 @@ namespace SourceOfFund.Services.Services
 
         public bool CheckSeedBalances(List<SeedBalancesDTO> model)
         {
-            //var accounts = model.Select(s => s.AccountId).ToList();
-            //var checkbalance = _accountServiceBalances.All(s => s.BalanceTypeID == 3 & accounts.Contains(s.AccountID));
-            //var checkAvaialbeBalance = _accountServiceBalances.All(s => s.BalanceTypeID == 3 & accounts.Contains(s.AccountID));
-            //return checkAvaialbeBalance && checkbalance;
-            return true;
+            var accounts = model.Select(s => s.AccountId).ToList();
+            var checkbalance = _accountServiceBalances.Getwhere(s => s.BalanceTypeID == 3 & accounts.Contains(s.AccountID)).All(c=>true);
+            var checkAvaialbeBalance = _accountServiceBalances.Getwhere(s => s.BalanceTypeID == 3 & accounts.Contains(s.AccountID)).All(c => true);
+            return checkAvaialbeBalance && checkbalance;
+            //return true;
         }
     }
 }
