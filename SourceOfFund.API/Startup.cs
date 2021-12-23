@@ -103,7 +103,12 @@ namespace SourceOfFund.API
             //    }));
 
             //services.AddHangfireServer();
+            Log.Logger = new LoggerConfiguration()
+             .MinimumLevel.Debug()
+             .WriteTo.File("/var/log/test/mylog.log", rollingInterval: RollingInterval.Day)
+             .CreateLogger();
 
+            Log.Error("HELLO WORLD");
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
