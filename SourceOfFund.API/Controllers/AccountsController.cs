@@ -61,6 +61,7 @@ namespace SourceOfFund.API.Controllers
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
 
+                _logger.LogInformation($"[Hold] request id: {requestId}, account id: {accountId}, amount: {model.Amount}");
                 _accountBalanceService.HoldAmount(new HoldBalanceDTO
                 {
                     AccountId = accountId,
@@ -68,7 +69,6 @@ namespace SourceOfFund.API.Controllers
                     RequestId = requestId,
                     BalanceTypeId = balanceTypeId.HasValue ? balanceTypeId.Value : 1
                 });
-                _logger.LogInformation($"[Hold] request id: {requestId}, account id: {accountId}, amount: {model.Amount}");
                 return Ok("Success", "200");
             }
             catch (SourceOfFundException ex)
@@ -180,16 +180,18 @@ namespace SourceOfFund.API.Controllers
         {
             try
             {
-                _accountBalanceService.ConfirmTransfer(fromAccountId, toAccountId, requestId);
                 _logger.LogInformation($"[ConfirmTransfer] account from id: {fromAccountId}, account to id: {toAccountId} request id: {requestId}");
+                _accountBalanceService.ConfirmTransfer(fromAccountId, toAccountId, requestId);
                 return Ok("Success", "200");
             }
             catch (SourceOfFundException ex)
             {
+                _logger.LogError($"[ConfirmTransfer Error1] Message: {ex.Message}");
                 return Ok(ex.Message, ex.ErrorCode);
             }
             catch (Exception ex)
             {
+                _logger.LogError($"[ConfirmTransfer Error2] Message: {ex.Message}");
                 return BadRequest(ex.Message, "0");
             }
         }
@@ -337,7 +339,7 @@ namespace SourceOfFund.API.Controllers
         [HttpPost]
         [Route("{accountId}/balances/seed")]
         [ProducesResponseType(typeof(void), 200)]
-        public IActionResult SeedBalances(int accountId ,[FromBody] List<SeedBalancesModel> model)
+        public IActionResult SeedBalances(int accountId, [FromBody] List<SeedBalancesModel> model)
         {
             try
             {

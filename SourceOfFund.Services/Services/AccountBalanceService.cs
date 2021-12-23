@@ -163,11 +163,10 @@ namespace SourceOfFund.Services.Services
         }
         public void ConfirmTransfer(int fromAccountId, int toAccountId, int requestId)
         {
-            var holdBalance = _holdBalances.Getwhere(c => c.RequestID == requestId
-           && c.AccountID == fromAccountId && c.Status == ActiveStatus.True).FirstOrDefault();
+            var holdBalance = _holdBalances.Getwhere(c => c.RequestID == requestId && c.AccountID == fromAccountId && c.Status == ActiveStatus.True).FirstOrDefault();
 
             if (holdBalance == null)
-                throw new SourceOfFundException("", "5");
+                throw new SourceOfFundException("Error hold balance not found", "5");
 
             var balancesAccountFrom = _accountServiceBalances.Getwhere(asb => asb.AccountID == fromAccountId).ToList();
 
@@ -175,7 +174,7 @@ namespace SourceOfFund.Services.Services
             var avaliableBalancesAccountTo = _accountServiceAvailableBalances.Getwhere(asb => asb.AccountID == toAccountId).ToList();
 
             if (balancesAccountFrom.Count <= 0)
-                throw new SourceOfFundException("", "5");
+                throw new SourceOfFundException("balance account from less than zero", "5");
 
             //var totalBalancesFromAccount = balancesAccountFrom.Sum(b => b.Balance);
             var sourceBalance = balancesAccountFrom.Where(asb => asb.BalanceTypeID == 1).FirstOrDefault();
