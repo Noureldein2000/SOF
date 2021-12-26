@@ -21,7 +21,7 @@ namespace SourceOfFund.API
             using var scope = host.Services.CreateScope();
             var services = scope.ServiceProvider;
             var environment = services.GetRequiredService<IWebHostEnvironment>();
-            var envPath = environment.ContentRootPath;
+            var envPath = AppDomain.CurrentDomain.BaseDirectory;//environment.ContentRootPath;
 
             //string path = Directory.GetCurrentDirectory();
             //var config = new ConfigurationBuilder()
