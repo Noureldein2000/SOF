@@ -45,11 +45,13 @@ namespace SourceOfFund.API.Controllers
             }
             catch (SourceOfFundException ex)
             {
+                _logger.LogError(ex, $"[GetBalance] {ex.Message}, account {accountId}");
                 return Ok(ex.Message, ex.ErrorCode);
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message, "0");
+                _logger.LogError(ex, $"[GetBalance] {ex.Message}, account {accountId}");
+                return Ok(ex.Message, "0");
             }
         }
         [HttpPost]
@@ -59,7 +61,7 @@ namespace SourceOfFund.API.Controllers
             try
             {
                 if (!ModelState.IsValid)
-                    return BadRequest(ModelState);
+                    return Ok(ModelState);
 
                 _logger.LogInformation($"[Hold] request id: {requestId}, account id: {accountId}, amount: {model.Amount}");
                 _accountBalanceService.HoldAmount(new HoldBalanceDTO
@@ -79,12 +81,12 @@ namespace SourceOfFund.API.Controllers
             catch (DBConcurrencyException dbex)
             {
                 _logger.LogError("[DBConcurrency Exception]");
-                return BadRequest(dbex.Message, "0");
+                return Ok(dbex.Message, "0");
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"[Post Exception] {ex.Message}");
-                return BadRequest(ex.Message, "0");
+                return Ok(ex.Message, "0");
             }
         }
         [HttpDelete]
@@ -94,15 +96,15 @@ namespace SourceOfFund.API.Controllers
             try
             {
                 if (!ModelState.IsValid)
-                    return BadRequest(ModelState);
+                    return Ok(ModelState);
 
-
+                _logger.LogInformation($"[Refund] request id: {requestId}, account id: {accountId}");
                 _accountBalanceService.RefundAmount(new HoldBalanceDTO
                 {
                     AccountId = accountId,
                     RequestId = requestId,
                 });
-                _logger.LogInformation($"[Refund] request id: {requestId}, account id: {accountId}");
+               
             }
             catch (SourceOfFundException ex)
             {
@@ -116,7 +118,7 @@ namespace SourceOfFund.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "[Refund Exception]");
-                return BadRequest(ex.Message, "0");
+                return Ok(ex.Message, "0");
             }
             return Ok("Success", "200");
         }
@@ -128,18 +130,21 @@ namespace SourceOfFund.API.Controllers
             try
             {
                 if (!ModelState.IsValid)
-                    return BadRequest(ModelState);
+                    return Ok(ModelState);
+
+                _logger.LogInformation($"[Confirmed] request id: {requestId}, account id: {accountId}");
                 _accountBalanceService.ConfirmAmount(new HoldBalanceDTO
                 {
                     AccountId = accountId,
                     RequestId = requestId,
                     TransactionIds = transactionIds.ToList()
                 });
-                _logger.LogInformation($"[Confirmed] request id: {requestId}, account id: {accountId}");
+                
                 return Ok("Success", "200");
             }
             catch (SourceOfFundException ex)
             {
+                _logger.LogError($"[Confirmed Error1] Message: {ex.Message}");
                 return Ok(ex.Message, ex.ErrorCode);
             }
             catch (DBConcurrencyException dbex)
@@ -160,17 +165,19 @@ namespace SourceOfFund.API.Controllers
         {
             try
             {
-                _accountBalanceService.ReturnBalance(fromAccountId, toAccountId, amount);
                 _logger.LogInformation($"[ReturnBalance] account from id: {fromAccountId}, account to id: {toAccountId} amount: {amount}");
+                _accountBalanceService.ReturnBalance(fromAccountId, toAccountId, amount);
                 return Ok("Success", "200");
             }
             catch (SourceOfFundException ex)
             {
+                _logger.LogError($"[ReturnBalance Error1] Message: {ex.Message}");
                 return Ok(ex.Message, ex.ErrorCode);
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message, "0");
+                _logger.LogError($"[ReturnBalance Error1] Message: {ex.Message}");
+                return Ok(ex.Message, "0");
             }
         }
 
@@ -192,7 +199,7 @@ namespace SourceOfFund.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError($"[ConfirmTransfer Error2] Message: {ex.Message}");
-                return BadRequest(ex.Message, "0");
+                return Ok(ex.Message, "0");
             }
         }
 
@@ -202,17 +209,19 @@ namespace SourceOfFund.API.Controllers
         {
             try
             {
-                _accountBalanceService.ManageBalance(fromAccountId, toAccountId, amount, accountFromRequestId, accountFromTransactionId);
                 _logger.LogInformation($"[ManageBalance] account from id: {fromAccountId}, account to id: {toAccountId} amount: {amount}, requestId: {accountFromRequestId}");
+                _accountBalanceService.ManageBalance(fromAccountId, toAccountId, amount, accountFromRequestId, accountFromTransactionId);
                 return Ok("Success", "200");
             }
             catch (SourceOfFundException ex)
             {
+                _logger.LogError($"[ManageBalance Error1] Message: {ex.Message}");
                 return Ok(ex.Message, ex.ErrorCode);
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message, "0");
+                _logger.LogError($"[ManageBalance Error1] Message: {ex.Message}");
+                return Ok(ex.Message, "0");
             }
         }
         [HttpPost]
@@ -225,17 +234,19 @@ namespace SourceOfFund.API.Controllers
                 {
                     return Ok("Not Valid", "-7");
                 }
-                _accountBalanceService.ManageBalanceForCashoutUniversity(model.FromAccountId, model.ToAccountId, model.Amount, model.RequestId, model.TransactionId);
                 _logger.LogInformation($"[ManageBalance] account from id: {model.FromAccountId}, account to id: {model.ToAccountId} amount: {model.Amount}, requestId: {model.RequestId}");
+                _accountBalanceService.ManageBalanceForCashoutUniversity(model.FromAccountId, model.ToAccountId, model.Amount, model.RequestId, model.TransactionId);
                 return Ok("Success", "200");
             }
             catch (SourceOfFundException ex)
             {
+                _logger.LogError($"[ManageBalance2 Error1] Message: {ex.Message}");
                 return Ok(ex.Message, ex.ErrorCode);
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message, "0");
+                _logger.LogError($"[ManageBalance2 Error1] Message: {ex.Message}");
+                return Ok(ex.Message, "0");
             }
         }
         [HttpPost]
@@ -244,17 +255,19 @@ namespace SourceOfFund.API.Controllers
         {
             try
             {
-                _accountBalanceService.CreateAccount(model.AccountId, model.Amount, model.BalanceTypeIds);
                 _logger.LogInformation($"[CreateAccount] account id: {model.AccountId}, amount: {model.Amount}, balanceType: {model.BalanceTypeIds}");
+                _accountBalanceService.CreateAccount(model.AccountId, model.Amount, model.BalanceTypeIds);
                 return Ok("Success", "200");
             }
             catch (SourceOfFundException ex)
             {
+                _logger.LogError($"[CreateAccount Error1] Message: {ex.Message}, TraceCode: {ex.StackTrace}");
                 return Ok(ex.Message, ex.ErrorCode);
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message, "0");
+                _logger.LogError($"[CreateAccount Error1] Message: {ex.Message}, TraceCode: {ex.StackTrace}");
+                return Ok(ex.Message, "0");
             }
         }
 
@@ -279,7 +292,7 @@ namespace SourceOfFund.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "[Change Status Exception]");
-                return BadRequest(ex.Message, "0");
+                return Ok(ex.Message, "0");
             }
             return Ok("Success", "200");
         }
@@ -305,7 +318,7 @@ namespace SourceOfFund.API.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message, "0");
+                return Ok(ex.Message, "0");
             }
         }
         [HttpPost]
@@ -328,11 +341,13 @@ namespace SourceOfFund.API.Controllers
             }
             catch (SourceOfFundException ex)
             {
+                _logger.LogError($"[CheckSeedBalances Error1] Message: {ex.Message}");
                 return Ok(ex.Message, ex.ErrorCode);
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message, "0");
+                _logger.LogError($"[CheckSeedBalances Error1] Message: {ex.Message}");
+                return Ok(ex.Message, "0");
             }
         }
 
@@ -347,6 +362,7 @@ namespace SourceOfFund.API.Controllers
                 {
                     return Ok("Not Valid", "-7");
                 }
+                _logger.LogInformation($"[SeedBalances] account from id: {accountId}, No of accounts {model.Count} ");
                 _accountBalanceService.SeedBalances(accountId, model.Select(s => new SeedBalancesDTO
                 {
                     AccountId = s.AccountId,
@@ -354,16 +370,17 @@ namespace SourceOfFund.API.Controllers
                     RequestId = s.RequestId,
                     TrasnsactionId = s.TrasnsactionId
                 }).ToList());
-                _logger.LogInformation($"[SeedBalances] account from id: {accountId}, No of accounts {model.Count} ");
                 return Ok("Success", "200");
             }
             catch (SourceOfFundException ex)
             {
+                _logger.LogError($"[SeedBalances Error1] Message: {ex.Message}");
                 return Ok(ex.Message, ex.ErrorCode);
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message, "0");
+                _logger.LogError($"[SeedBalances Error1] Message: {ex.Message}");
+                return Ok(ex.Message, "0");
             }
         }
 
@@ -384,7 +401,7 @@ namespace SourceOfFund.API.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message, "0");
+                return Ok(ex.Message, "0");
             }
         }
     }
