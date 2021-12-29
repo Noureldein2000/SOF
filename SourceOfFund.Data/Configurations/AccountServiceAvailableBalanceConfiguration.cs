@@ -17,6 +17,8 @@ namespace SourceOfFund.Data.Configurations
                 .HasForeignKey(s => s.BalanceTypeID)
                 .OnDelete(DeleteBehavior.NoAction);
 
+            builder.HasIndex(s => new { s.AccountID, s.BalanceTypeID }).IsUnique(true).HasName("IX_AccountServiceAvailableBalances_AccountID_BalanceTypeID");
+
             //builder.Property(s => s.RowVersion).IsRowVersion().ValueGeneratedOnUpdate();
         }
     }

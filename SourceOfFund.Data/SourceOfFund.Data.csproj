@@ -26,6 +26,12 @@
     <Compile Remove="Migrations\20210803152852_AddRowVersion2.Designer.cs" />
     <Compile Remove="Migrations\20211101101540_HangFire.cs" />
     <Compile Remove="Migrations\20211101101540_HangFire.Designer.cs" />
+    <Compile Remove="Migrations\20211229204536_AddIndexAndUniqueKeys.cs" />
+    <Compile Remove="Migrations\20211229204536_AddIndexAndUniqueKeys.Designer.cs" />
+    <Compile Remove="Migrations\20211229204759_AddIndexAndUniqueKeys.cs" />
+    <Compile Remove="Migrations\20211229204759_AddIndexAndUniqueKeys.Designer.cs" />
+    <Compile Remove="Migrations\20211229204821_AddIndexAndUniqueKeys.cs" />
+    <Compile Remove="Migrations\20211229204821_AddIndexAndUniqueKeys.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>
