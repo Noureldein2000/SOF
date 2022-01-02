@@ -13,8 +13,8 @@
     <EnvironmentName>Development</EnvironmentName>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)' == 'Production'">
-    <EnvironmentName>Production</EnvironmentName>
+  <PropertyGroup Condition="'$(Configuration)' == 'Testing'">
+    <EnvironmentName>Testing</EnvironmentName>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
