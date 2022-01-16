@@ -255,7 +255,7 @@ namespace SourceOfFund.API.Controllers
         {
             try
             {
-                _logger.LogInformation($"[CreateAccount] account id: {model.AccountId}, amount: {model.Amount}, balanceType: {model.BalanceTypeIds}");
+                _logger.LogInformation($"[CreateAccount] account id: {model.AccountId}, amount: {model.Amount}, balanceType: {string.Join(", ", model.BalanceTypeIds)}");
                 _accountBalanceService.CreateAccount(model.AccountId, model.Amount, model.BalanceTypeIds);
                 return Ok("Success", "200");
             }
