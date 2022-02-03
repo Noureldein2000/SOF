@@ -376,5 +376,22 @@ namespace SourceOfFund.Services.Services
             _logger.LogInformation($"[Check balances {checkAvaialbeBalance.Count}, {checkbalance.Count}]");
             return checkAvaialbeBalance.Count == accounts.Count && checkbalance.Count == accounts.Count;
         }
+
+        public List<AccountBalancesDTO> GetBalancesByAccountId(int id, string language)
+        {
+            var balances = _balanceType.Getwhere(b => b.AccountServiceBalances.Any(a => a.AccountID == id)
+           && b.AccountServiceAvailableBalances.Any(a => a.AccountID == id))
+               .Select(a => new AccountBalancesDTO
+               {
+                   TotalBalance = a.AccountServiceBalances.Where(a => a.AccountID == id)
+                       .Select(b => b.Balance).FirstOrDefault(),
+                   TotalAvailableBalance = a.AccountServiceAvailableBalances.Where(a => a.AccountID == id)
+                       .Select(b => b.Balance).FirstOrDefault(),
+                   BalanceType = language == "en" ? a.Name : a.ArName,
+                   BalanceTypeId = a.ID
+               }).ToList();
+
+            return balances;
+        }
     }
 }
