@@ -104,7 +104,7 @@ namespace SourceOfFund.API.Controllers
                     AccountId = accountId,
                     RequestId = requestId,
                 });
-               
+
             }
             catch (SourceOfFundException ex)
             {
@@ -139,7 +139,7 @@ namespace SourceOfFund.API.Controllers
                     RequestId = requestId,
                     TransactionIds = transactionIds.ToList()
                 });
-                
+
                 return Ok("Success", "200");
             }
             catch (SourceOfFundException ex)
@@ -393,6 +393,34 @@ namespace SourceOfFund.API.Controllers
             {
                 var balancesTypes = _accountBalanceService.GetBalanceTypesByAccountId(id, language);
                 return Ok(balancesTypes);
+
+            }
+            catch (SourceOfFundException ex)
+            {
+                return Ok(ex.Message, ex.ErrorCode);
+            }
+            catch (Exception ex)
+            {
+                return Ok(ex.Message, "0");
+            }
+        }
+
+        [HttpGet]
+        [Route("Balances/{accountId}")]
+        [ProducesResponseType(typeof(List<AccountBalancesModel>), 200)]
+        public IActionResult GetBalanceByAccountId(int accountId, string language = "ar")
+        {
+            try
+            {
+                var accountBalances = _accountBalanceService.GetBalancesByAccountId(accountId, language).Select(x => new AccountBalancesModel
+                {
+                    TotalBalance = x.TotalBalance,
+                    TotalAvailableBalance = x.TotalAvailableBalance,
+                    BalanceType = x.BalanceType,
+                    BalanceTypeId = x.BalanceTypeId
+                }).ToList();
+
+                return Ok(accountBalances);
 
             }
             catch (SourceOfFundException ex)
