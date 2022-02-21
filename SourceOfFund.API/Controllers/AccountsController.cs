@@ -323,7 +323,7 @@ namespace SourceOfFund.API.Controllers
         }
         [HttpPost]
         [Route("checkbalances/seed")]
-        [ProducesResponseType(typeof(bool), 200)]
+        [ProducesResponseType(typeof(List<int>), 200)]
         public IActionResult CheckSeedBalances([FromBody] List<SeedBalancesModel> model)
         {
             try

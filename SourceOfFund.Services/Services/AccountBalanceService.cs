@@ -368,13 +368,18 @@ namespace SourceOfFund.Services.Services
             return _accountServiceBalances.Getwhere(x => x.AccountID == id).Select(x => x.BalanceTypeID).ToList();
         }
 
-        public bool CheckSeedBalances(List<SeedBalancesDTO> model)
+        public List<int> CheckSeedBalances(List<SeedBalancesDTO> model)
         {
             var accounts = model.Select(s => s.AccountId).ToList();
             var checkbalance = _accountServiceBalances.Getwhere(s => s.BalanceTypeID == 3 && accounts.Contains(s.AccountID)).ToList();
             var checkAvaialbeBalance = _accountServiceAvailableBalances.Getwhere(s => s.BalanceTypeID == 3 && accounts.Contains(s.AccountID)).ToList();
             _logger.LogInformation($"[Check balances {checkAvaialbeBalance.Count}, {checkbalance.Count}]");
-            return checkAvaialbeBalance.Count == accounts.Count && checkbalance.Count == accounts.Count;
+            var canAdd = checkAvaialbeBalance.Count == accounts.Count && checkbalance.Count == accounts.Count;
+            if (!canAdd)
+            {
+                return accounts.Except(checkbalance.Select(a => a.AccountID).ToList()).ToList();
+            }
+            return new List<int>();
         }
 
         public List<AccountBalancesDTO> GetBalancesByAccountId(int id, string language)
